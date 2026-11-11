@@ -5,7 +5,18 @@
   "through": "2026-11-11",
   "label": "Tracking started"
  },
- "payments": [],
+ "payments": [
+  {
+   "id": "mwc281i6vpqa",
+   "date": "2026-11-10",
+   "amount": 70,
+   "cleanings": [],
+   "extras": [
+    "mwc27zaj5lo9"
+   ],
+   "recordedAt": "2026-11-11T11:52:53.406Z"
+  }
+ ],
  "crossoffs": {
   "camp-whole|2026-11-12": {
    "reason": "Guests canceled",
@@ -22,5 +33,5 @@
    "note": "TEST extra"
   }
  ],
- "updatedAt": "2026-11-11T11:52:50.539Z"
+ "updatedAt": "2026-11-11T11:52:53.406Z"
 }
