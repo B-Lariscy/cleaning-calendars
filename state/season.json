@@ -13,6 +13,14 @@
    "at": "2026-11-11"
   }
  },
- "extras": [],
- "updatedAt": "2026-11-11T11:52:14.461Z"
+ "extras": [
+  {
+   "id": "mwc278etr3jf",
+   "date": "2026-11-08",
+   "unit": "camp-whole",
+   "amount": 70,
+   "note": "TEST extra"
+  }
+ ],
+ "updatedAt": "2026-11-11T11:52:15.701Z"
 }
