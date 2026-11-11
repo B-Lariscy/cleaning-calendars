@@ -128,7 +128,7 @@
       var title = fmt(first, { month: 'long', year: 'numeric' });
       html += '<div class="cal" data-p="' + p.id + '"><div class="calhead"><button class="nav" data-nav="-1" aria-label="Previous month">‹</button><h3>' + esc(p.name) + '<small>' + title + '</small></h3><button class="nav" data-nav="1" aria-label="Next month">›</button></div>';
       if (m !== today.slice(0, 7)) html += '<div style="text-align:center"><button class="todaybtn" data-nav="0">Back to this month</button></div>';
-      html += '<div class="legend">' + p.units.map(function (u) { return '<span><i class="sw" style="background:' + u.color + '"></i>' + esc(u.short) + '</span>'; }).join('') + '<span>🧹 cleaning</span><span><i class="sw" style="box-shadow:inset 0 0 0 2px #dc2626"></i>same-day</span></div>';
+      html += '<div class="legend">' + p.units.map(function (u) { return '<span><i class="sw" style="background:' + u.color + '"></i>' + esc(u.short) + '</span>'; }).join('') + '<span>🧹 cleaning</span><span><i class="sw closed"></i>closed</span><span><i class="sw" style="box-shadow:inset 0 0 0 2px #dc2626"></i>same-day</span></div>';
       html += '<div class="grid">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="dow">' + x + '</div>'; }).join('');
       for (var i = 0; i < 42; i++) {
         var d = addDays(start, i);
