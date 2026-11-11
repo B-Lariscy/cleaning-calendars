@@ -10,7 +10,7 @@ fi
 if grep -rIl -E 'Reserved - |UID:' "$dir"; then echo "Raw iCal fields found"; bad=1; fi
 # data files may only contain these keys
 for f in $(find "$dir" -name 'data.json' -o -name 'cache.json'); do
-  if grep -o -E '"[A-Za-z_]+":' "$f" | sort -u | grep -v -E '^"(generatedAt|title|cleaner|timezone|properties|id|name|units|short|color|whole|separate|feeds|ok|lastOk|stays|unit|start|end|source|type|events|kind)":$'; then
+  if grep -o -E '"[A-Za-z_]+":' "$f" | sort -u | grep -v -E '^"(generatedAt|title|cleaner|timezone|properties|id|name|units|short|color|whole|separate|feeds|ok|lastOk|stays|unit|start|end|source|type|events|kind|feedCals|label|active|completed|billing|rate|gh|owner|repo|stateBranch|privateRepo|page|property|allUnits)":$'; then
     echo "Unexpected key in $f"; bad=1
   fi
 done

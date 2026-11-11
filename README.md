@@ -15,3 +15,10 @@ Self-updating cleaning schedules for cleaners, built from Airbnb/Vrbo iCal feeds
 
 All planned feeds are already listed in `config/units.json` and in the workflow's `env:` block, so for those only step 2 is needed.
 A brand-new listing: add the unit to `units`, one line to `feeds` in `config/units.json`, and one `NAME: ${{ secrets.NAME }}` line in `.github/workflows/deploy.yml`.
+
+## Pay tracker, cross-offs, refunds (owner mode)
+- Season's bill = $70 × completed cleanings (checkout day ≤ today ET) since tracking started / not yet paid, minus crossed-off ones, plus extras.
+- Shared state: `state/<page>.json` on the **state** branch of this repo (the build never touches it; pushes there don't trigger deploys). Season can read it.
+- Guest refunds: `refunds/<page>.json` in the PRIVATE repo `B-Lariscy/cleaning-calendars-private`, only read with the owner token.
+- Owner mode: tap "Owner" at the bottom of the page and paste a fine-grained GitHub token with Contents: Read and write on both repos. It is stored only in that browser.
+- The build keeps an append-only log of completed cleanings (`completed` in data.json) so the bill survives feeds dropping old stays.

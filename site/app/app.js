@@ -1,7 +1,8 @@
 (function () {
   'use strict';
   var TZ = 'America/New_York', HORIZON = 60, STALE_MS = 3 * 3600 * 1000;
-  var data = window.__DATA__, units = {}, filter = 'all', months = {}, selected = {}, showAll = false, MAXCARDS = 6;
+  var data = window.__DATA__, units = {}, filter = 'all', months = {}, selected = {}, showAll = false, MAXCARDS = 6, calMode = {};
+  try { calMode = JSON.parse(localStorage.getItem('calMode') || '{}') || {}; } catch (e) {}
   try { filter = localStorage.getItem('filter') || 'all'; } catch (e) {}
 
   function todayNY() { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date()); }
@@ -68,12 +69,14 @@
         if (n && n.start === s.end) nx = '<span class="sameday">SAME-DAY TURNOVER – guests arrive today</span>';
         else if (n) nx = '<div class="next">Next guests arrive: <b>' + nice(n.start) + '</b>' + (n.unit !== s.unit ? ' (' + esc(units[n.unit].short) + ')' : '') + '</div>';
         else nx = '<div class="next">Next guests arrive: <b>none booked yet</b></div>';
-        html += '<div class="card" style="border-left-color:' + u.color + '">' +
+        var X = window.Pay ? Pay.crossed(s) : null;
+        html += '<div class="card' + (X ? ' crossed' : '') + '" data-id="' + esc(s.unit + '|' + s.end) + '" style="border-left-color:' + u.color + '">' +
           '<div class="date">' + nice(s.end) + '</div>' +
           '<div class="where">' + esc(u.propName) + ' · ' + esc(u.short) + '</div>' +
           '<div class="meta"><span class="pill">🧹 Clean after checkout</span><span class="pill ' + s.source + '">' + s.source + '</span><span class="pill">' + fmt(s.start, { month: 'short', day: 'numeric' }) + ' – ' + fmt(s.end, { month: 'short', day: 'numeric' }) + '</span></div>' +
           nx +
-          (s.source === 'Blocked' ? '<div class="note">Dates blocked on Airbnb (usually a booking from another listing/site). Confirm with Branson if unsure.</div>' : '') +
+          (s.source === 'Blocked' && !X ? '<div class="note">Dates blocked on Airbnb (usually a booking from another listing/site). Confirm with Branson if unsure.</div>' : '') +
+          (window.Pay ? Pay.cardHtml(s) : '') +
           '</div>';
       });
     });
@@ -83,78 +86,109 @@
     var mb = el('more'); if (mb) mb.onclick = function () { showAll = !showAll; renderList(); };
   }
 
-  function dayInfo(d, pu, all) {
-    var out = { rows: [], brooms: [], turn: false, lines: [] };
-    pu.forEach(function (u) {
-      var L = null, R = null, Lc = false, Rc = false;
-      all.forEach(function (s) {
-        if (s.unit !== u.id) return;
-        if (s.start < d && d <= s.end) { L = s; }
-        if (s.start <= d && d < s.end) { R = s; }
+  // ---- Calendars ----
+  // rows: [{ color, stays:[{unit,start,end,type,source}] }]; turnKey(s, o) decides if an arrival makes a same-day turnover
+  function dayInfo(d, rows, sameSpace) {
+    var out = { rows: [], brooms: 0, turn: false, lines: [] };
+    rows.forEach(function (row) {
+      var L = null, R = null;
+      row.stays.forEach(function (s) {
+        if (s.start < d && d <= s.end) L = s;
+        if (s.start <= d && d < s.end) R = s;
       });
-      Lc = L && L.type === 'closed'; Rc = R && R.type === 'closed';
-      out.rows.push({ u: u, L: L, R: R, Lc: Lc, Rc: Rc, split: L && R && L !== R });
-      all.forEach(function (s) {
-        if (s.unit !== u.id) return;
+      out.rows.push({ color: row.color, L: L, R: R, split: L && R && L !== R });
+      row.stays.forEach(function (s) {
+        var nm = esc(row.name || units[s.unit].short);
         if (s.type === 'stay' && s.end === d) {
-          out.brooms.push(u); out.lines.push('🧹 Checkout / clean: <b>' + esc(u.short) + '</b> (' + s.source + ')');
-          if (all.some(function (o) { return o.type === 'stay' && o.start === d && related(u, units[o.unit]); })) out.turn = true;
+          var cx = window.Pay ? Pay.crossed(s) : null;
+          if (cx) { out.lines.push('❌ <s>Clean: ' + nm + '</s> — crossed off (' + esc(cx.reason) + ')'); return; }
+          out.brooms++; out.lines.push('🧹 Checkout / clean: <b>' + nm + '</b> (' + s.source + ')');
+          if (sameSpace(s, d)) out.turn = true;
         }
-        if (s.type === 'stay' && s.start === d) out.lines.push('🔑 Guests arrive: <b>' + esc(u.short) + '</b> (' + s.source + ')');
-        if (s.start < d && d < s.end) out.lines.push((s.type === 'closed' ? '⛔ Closed/blocked: ' : '🛏️ Occupied: ') + '<b>' + esc(u.short) + '</b>');
+        if (s.type === 'stay' && s.start === d) out.lines.push('🔑 Guests arrive: <b>' + nm + '</b> (' + s.source + ')');
+        if (s.start < d && d < s.end) out.lines.push((s.type === 'closed' ? '⛔ Closed/blocked: ' : (s.source === 'Blocked' ? '🚫 Blocked: ' : '🛏️ Occupied: ')) + '<b>' + nm + '</b>');
       });
     });
     return out;
   }
 
+  function segColor(s, c) { return !s ? 'transparent' : s.type === 'closed' ? '#cbd5e1' : s.source === 'Blocked' ? c + '77' : c; }
   function rowStyle(r) {
-    var c = r.u.color, hatch = 'repeating-linear-gradient(45deg,#d1d5db 0 4px,#f3f4f6 4px 8px)';
-    function seg(s, closed) { return s ? (closed ? null : c) : 'transparent'; }
-    var l = seg(r.L, r.Lc), rr = seg(r.R, r.Rc);
-    if ((r.Lc || !r.L) && (r.Rc || !r.R) && (r.Lc || r.Rc)) return 'background:' + hatch + (r.Lc && r.Rc ? '' : ';background-size:50% 100%;background-repeat:no-repeat;background-position:' + (r.Lc ? 'left' : 'right'));
-    if (r.Lc) l = '#cbd5e1'; if (r.Rc) rr = '#cbd5e1';
+    var hatch = 'repeating-linear-gradient(45deg,#d1d5db 0 4px,#f3f4f6 4px 8px)';
+    var Lc = r.L && r.L.type === 'closed', Rc = r.R && r.R.type === 'closed';
+    if (Lc && Rc) return 'background:' + hatch;
+    var l = segColor(r.L, r.color), rr = segColor(r.R, r.color);
     var gap = r.split ? 'transparent 46%,transparent 54%,' : '';
     var lr = r.L && !r.R ? ';border-radius:0 5px 5px 0' : (!r.L && r.R ? ';border-radius:5px 0 0 5px' : '');
     return 'background:linear-gradient(90deg,' + l + ' 0,' + l + ' ' + (r.split ? '46%' : '50%') + ',' + gap + rr + ' ' + (r.split ? '54%' : '50%') + ',' + rr + ' 100%)' + lr;
   }
 
+  function monthHtml(key, pid, title, sub, color, legend, rows, sameSpace) {
+    var today = todayNY(), m = months[pid] || today.slice(0, 7);
+    var first = m + '-01', dow = new Date(first + 'T12:00:00Z').getUTCDay(), start = addDays(first, -dow);
+    var h = '<div class="cal" data-p="' + pid + '" data-k="' + esc(key) + '"' + (color ? ' style="border-top:6px solid ' + color + '"' : '') + '>' +
+      '<div class="calhead"><button class="nav" data-nav="-1" aria-label="Previous month">‹</button><h3>' + title + '<small>' + esc(sub) + ' · ' + fmt(first, { month: 'long', year: 'numeric' }) + '</small></h3><button class="nav" data-nav="1" aria-label="Next month">›</button></div>';
+    if (m !== today.slice(0, 7)) h += '<div style="text-align:center"><button class="todaybtn" data-nav="0">Back to this month</button></div>';
+    h += '<div class="legend">' + legend + '<span>🧹 cleaning</span><span><i class="sw" style="box-shadow:inset 0 0 0 2px #dc2626"></i>same-day</span><span><i class="sw closed"></i>closed</span></div>';
+    h += '<div class="grid">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="dow">' + x + '</div>'; }).join('');
+    for (var i = 0; i < 42; i++) {
+      var d = addDays(start, i);
+      if (i === 35 && d.slice(0, 7) !== m) break;
+      var info = dayInfo(d, rows, sameSpace);
+      var cls = 'day' + (d.slice(0, 7) !== m ? ' out' : '') + (d === today ? ' today' : '') + (info.turn ? ' turn' : '') + (selected[key] === d ? ' sel' : '');
+      h += '<div class="' + cls + '" data-d="' + d + '"><div class="dn"><span>' + Number(d.slice(8)) + '</span>' + (info.brooms ? '<span class="broom">🧹</span>' : '') + '</div>' +
+        info.rows.map(function (r) { return '<div class="row" style="' + rowStyle(r) + '"></div>'; }).join('') + '</div>';
+    }
+    h += '</div>';
+    var sd = selected[key];
+    if (sd) {
+      var inf = dayInfo(sd, rows, sameSpace);
+      h += '<div class="detail"><b>' + nice(sd) + '</b>' + (inf.turn ? ' <span class="pill" style="background:#dc2626;color:#fff">SAME-DAY TURNOVER</span>' : '') + (inf.lines.length ? '<ul><li>' + inf.lines.join('</li><li>') + '</li></ul>' : '<div>Nothing scheduled.</div>') + '</div>';
+    }
+    return h + '</div>';
+  }
+
+  function feedStays(f) {
+    return f.events.map(function (e) {
+      var n = Math.round((Date.parse(e.end) - Date.parse(e.start)) / 864e5);
+      return { unit: f.unit, start: e.start, end: e.end, type: e.kind === 'blocked' && n > 14 ? 'closed' : 'stay', source: e.kind === 'blocked' ? 'Blocked' : f.source };
+    });
+  }
+
   function renderCals() {
-    var today = todayNY(), all = stays(), html = '';
+    var all = stays(), html = '';
     data.properties.forEach(function (p) {
       if (filter !== 'all' && filter !== p.id) return;
-      var m = months[p.id] || today.slice(0, 7);
-      months[p.id] = m;
-      var first = m + '-01', dow = new Date(first + 'T12:00:00Z').getUTCDay(), start = addDays(first, -dow);
-      var title = fmt(first, { month: 'long', year: 'numeric' });
-      html += '<div class="cal" data-p="' + p.id + '"><div class="calhead"><button class="nav" data-nav="-1" aria-label="Previous month">‹</button><h3>' + esc(p.name) + '<small>' + title + '</small></h3><button class="nav" data-nav="1" aria-label="Next month">›</button></div>';
-      if (m !== today.slice(0, 7)) html += '<div style="text-align:center"><button class="todaybtn" data-nav="0">Back to this month</button></div>';
-      html += '<div class="legend">' + p.units.map(function (u) { return '<span><i class="sw" style="background:' + u.color + '"></i>' + esc(u.short) + '</span>'; }).join('') + '<span>🧹 cleaning</span><span><i class="sw closed"></i>closed</span><span><i class="sw" style="box-shadow:inset 0 0 0 2px #dc2626"></i>same-day</span></div>';
-      html += '<div class="grid">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="dow">' + x + '</div>'; }).join('');
-      for (var i = 0; i < 42; i++) {
-        var d = addDays(start, i);
-        if (i === 35 && d.slice(0, 7) !== m) break;
-        var info = dayInfo(d, p.units, all);
-        var cls = 'day' + (d.slice(0, 7) !== m ? ' out' : '') + (d === today ? ' today' : '') + (info.turn ? ' turn' : '') + (selected[p.id] === d ? ' sel' : '');
-        html += '<div class="' + cls + '" data-d="' + d + '"><div class="dn"><span>' + Number(d.slice(8)) + '</span>' + (info.brooms.length ? '<span class="broom">🧹</span>' : '') + '</div>' +
-          info.rows.map(function (r) { return '<div class="row" style="' + rowStyle(r) + '"></div>'; }).join('') + '</div>';
+      var feeds = (data.feedCals || []).filter(function (f) { return f.property === p.id; });
+      var act = feeds.filter(function (f) { return f.active; });
+      html += '<div class="prophead"><h3>' + esc(p.name) + '</h3></div>';
+      // Combined: every listing of this property on one calendar, one color-coded row per listing
+      if (!act.length) html += '<div class="cal placeholder"><b>Combined</b><div class="note">No calendar links added yet for ' + esc(p.name) + '.</div></div>';
+      else {
+        var crow = act.map(function (f) { return { color: f.color, name: f.label, unit: f.unit, stays: feedStays(f) }; });
+        var legend = act.map(function (f) { return '<span><i class="sw" style="background:' + f.color + '"></i>' + esc(f.label) + '</span>'; }).join('') + '<span><i class="sw" style="background:#94a3b8"></i>lighter = blocked</span>';
+        html += monthHtml('c:' + p.id, p.id, 'Combined', p.name + ' – all listings', '#0f766e', legend, crow, function (s, d) {
+          return crow.some(function (r) { return r.stays.some(function (o) { return o.type === 'stay' && o.start === d && units[o.unit] && units[s.unit] && related(units[s.unit], units[o.unit]); }); });
+        });
       }
-      html += '</div>';
-      var sd = selected[p.id];
-      if (sd) {
-        var inf = dayInfo(sd, p.units, all);
-        html += '<div class="detail"><b>' + nice(sd) + '</b>' + (inf.turn ? ' <span class="pill" style="background:#dc2626;color:#fff">SAME-DAY TURNOVER</span>' : '') + (inf.lines.length ? '<ul><li>' + inf.lines.join('</li><li>') + '</li></ul>' : '<div>Nothing scheduled.</div>') + '</div>';
-      }
-      html += '</div>';
+      feeds.forEach(function (f) {
+        if (!f.active) { html += '<div class="cal placeholder" style="border-top:6px solid ' + f.color + '"><b>' + esc(f.label) + '</b> <span class="note">· ' + esc(p.name) + '</span><div class="note">📎 Calendar link not added yet</div></div>'; return; }
+        var st = feedStays(f), row = [{ color: f.color, name: f.label, stays: st }];
+        var legend = '<span><i class="sw" style="background:' + f.color + '"></i>booked</span><span><i class="sw" style="background:' + f.color + '77"></i>blocked</span>';
+        html += monthHtml('f:' + f.id, p.id, esc(f.label), p.name, f.color, legend, row, function (s, d) {
+          return st.some(function (o) { return o.type === 'stay' && o.start === d; });
+        });
+      });
     });
     var c = el('cals');
     c.innerHTML = html;
-    c.querySelectorAll('.cal').forEach(function (cal) {
-      var pid = cal.getAttribute('data-p'), x0 = null, y0 = null;
+    c.querySelectorAll('.cal[data-k]').forEach(function (cal) {
+      var pid = cal.getAttribute('data-p'), key = cal.getAttribute('data-k'), x0 = null, y0 = null;
       cal.onclick = function (e) {
         var n = e.target.closest('[data-nav]');
-        if (n) { var k = Number(n.getAttribute('data-nav')); shift(pid, k); return; }
+        if (n) { shift(pid, Number(n.getAttribute('data-nav'))); return; }
         var d = e.target.closest('.day');
-        if (d) { var v = d.getAttribute('data-d'); selected[pid] = selected[pid] === v ? null : v; renderCals(); }
+        if (d) { var v = d.getAttribute('data-d'); selected[key] = selected[key] === v ? null : v; renderCals(); }
       };
       cal.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
       cal.addEventListener('touchend', function (e) {
@@ -163,20 +197,24 @@
       }, { passive: true });
     });
   }
+  function feedProp(f) { return f.property; }
+  function feedColor(f) { return f.color || '#64748b'; }
   function shift(pid, k) {
     if (k === 0) { months[pid] = todayNY().slice(0, 7); }
-    else { var d = new Date(months[pid] + '-15T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + k); months[pid] = d.toISOString().slice(0, 7); }
-    selected[pid] = null; renderCals();
+    else { var d = new Date((months[pid] || todayNY().slice(0, 7)) + '-15T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + k); months[pid] = d.toISOString().slice(0, 7); }
+    Object.keys(selected).forEach(function (k2) { selected[k2] = null; }); renderCals();
   }
-
-  function render() { if (!data) return; index(); renderHeader(); renderFilters(); renderList(); renderCals(); }
+  function render() { if (!data) return; index(); renderHeader(); renderFilters(); renderList(); renderCals(); if (window.Pay) Pay.render(); }
+  window.App = { get data() { return data; }, get units() { return units; }, todayNY: todayNY, addDays: addDays, fmt: fmt, nice: nice, esc: esc, render: render, renderList: renderList, renderCals: renderCals };
 
   function refresh() {
     fetch('data.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
       if (d && (!data || d.generatedAt >= data.generatedAt)) { data = d; render(); }
     }).catch(function () {}).then(renderHeader);
+    if (window.Pay) Pay.load();
   }
 
+  if (window.Pay) Pay.init();
   render();
   refresh();
   setInterval(refresh, 10 * 60 * 1000);

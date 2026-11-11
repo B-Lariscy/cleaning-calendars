@@ -19,6 +19,7 @@
   <div id="updated" class="updated"></div>
 </header>
 <div id="warn" class="warn" hidden></div>
+<section id="pay" class="paybox" hidden></section>
 <nav id="filters" class="filters" aria-label="Filter by property"></nav>
 <main>
   <section>
@@ -29,9 +30,12 @@
     <h2 class="sec">📅 Calendars</h2>
     <div id="cals"></div>
   </section>
-  <p class="foot">Checkout day = cleaning day. Times: after guest checkout. Updates automatically about every 30 minutes.</p>
+  <section id="refunds" hidden></section>
+  <p class="foot">Checkout day = cleaning day. Times: after guest checkout. Updates automatically about every 30 minutes.<br><a href="#" id="ownerLink" class="ownerlink">Owner</a></p>
+  <div id="ownerPanel" class="box" hidden></div>
 </main>
 <script>window.__DATA__ = /*__DATA__*/null;</script>
+<script src="pay.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

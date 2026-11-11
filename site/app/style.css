@@ -47,3 +47,38 @@ main{max-width:720px;margin:0 auto;padding:0 12px 24px}
 .foot{font-size:13px;color:#6b7280;text-align:center;margin-top:24px}
 @media (min-width:600px){.day{min-height:80px}}
 .more{display:block;width:100%;min-height:52px;margin:10px 0;border-radius:12px;border:2px solid #0f766e;background:#fff;color:#0f766e;font-size:17px;font-weight:700}
+.prophead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 4px 6px;flex-wrap:wrap}
+.prophead h3{margin:0;font-size:20px}
+.seg{display:inline-flex;border:2px solid #0f766e;border-radius:12px;overflow:hidden}
+.seg button{border:0;background:#fff;color:#0f766e;font-weight:700;font-size:15px;padding:9px 12px;min-height:44px}
+.seg button.on{background:#0f766e;color:#fff}
+.cal.placeholder{color:#6b7280;padding:14px 16px}
+.card.crossed .date,.card.crossed .where{text-decoration:line-through;color:#9ca3af}
+.card.crossed{opacity:.85;background:#f9fafb}
+.xinfo{margin-top:8px;font-weight:700;color:#b91c1c}
+.btn{display:inline-block;min-height:44px;border-radius:10px;border:2px solid #0f766e;background:#fff;color:#0f766e;font-weight:700;font-size:16px;padding:8px 14px;margin:6px 6px 0 0}
+.btn.primary{background:#0f766e;color:#fff}
+.btn.danger{border-color:#dc2626;color:#dc2626}
+.btn.small{min-height:36px;font-size:14px;padding:5px 10px}
+.reasons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.reasons .btn{margin:0}
+.paybox{background:#fff;margin:12px;border-radius:16px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.1);border:3px solid #0f766e;max-width:696px}
+@media (min-width:720px){.paybox{margin:12px auto}}
+.owed{font-size:28px;font-weight:900;color:#0f766e;line-height:1.15}
+.owedsub{font-size:16px;color:#374151;margin-top:2px}
+.lastpaid{font-size:19px;font-weight:800;margin-top:10px;background:#ecfdf5;border-radius:10px;padding:8px 10px}
+details{margin-top:10px}
+summary{font-weight:700;font-size:16px;cursor:pointer;min-height:36px;padding:6px 0}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:16px}
+.li .amt{font-weight:800;white-space:nowrap}
+.li.strike{color:#9ca3af;text-decoration:line-through}
+.form{background:#f8fafc;border-radius:12px;padding:12px;margin-top:10px}
+.form label{display:block;font-size:14px;font-weight:700;margin-top:8px}
+.form input,.form select{width:100%;font-size:17px;padding:10px;border:1px solid #cbd5e1;border-radius:10px;min-height:44px;background:#fff}
+.box{background:#fff;border-radius:14px;padding:16px;margin:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.refundbox{border:3px solid #7c3aed}
+.ownerlink{color:#6b7280}
+.ownerbar{background:#1f2937;color:#fff;font-size:14px;padding:6px 16px;display:flex;justify-content:space-between;align-items:center}
+.ownerbar button{background:transparent;color:#fff;border:1px solid #fff;border-radius:8px;padding:4px 10px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:90%}
+.toast.err{background:#b91c1c}

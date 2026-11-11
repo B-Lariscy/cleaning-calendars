@@ -64,13 +64,21 @@ async function fetchFeed(url) {
   } finally { clearTimeout(t); }
 }
 
+// Previous deploy's cache (last-good feed data + completed-cleanings log). 404 = first deploy.
+// Any other failure aborts the build so the completed-cleanings log (used for the pay bill) is never lost.
 async function loadPrev(cleanerId) {
   const base = process.env.PREV_BASE_URL;
   if (!base) return null;
-  try {
-    const r = await fetch(new URL(`${cleanerId}/cache.json`, base.endsWith('/') ? base : base + '/'), { headers: { 'Cache-Control': 'no-cache' } });
-    if (!r.ok) return null; return await r.json();
-  } catch { return null; }
+  const url = new URL(`${cleanerId}/cache.json?t=${Date.now()}`, base.endsWith('/') ? base : base + '/');
+  for (let i = 0; i < 4; i++) {
+    try {
+      const r = await fetch(url, { headers: { 'Cache-Control': 'no-cache' } });
+      if (r.status === 404) return null;
+      if (r.ok) return await r.json();
+    } catch {}
+    await new Promise(res => setTimeout(res, 5000));
+  }
+  throw new Error(`Could not load previous cache for ${cleanerId}; not deploying to avoid losing history`);
 }
 
 const related = (a, b) => a.id === b.id || (a.property === b.property && !a.separate && !b.separate && (a.whole || b.whole));
@@ -148,12 +156,31 @@ async function main() {
         console.log(`[FAIL] ${cl.id}/${f.id}: ${String(err.message).replace(/https?:\S+/g, '<url>')} — ${p ? 'kept previous data' : 'no previous data'}`);
       }
     }
+    // Completed-cleanings log: append-only (kept ~400 days) so pay can be computed even after feeds drop old stays.
+    const merged = merge(Object.values(cache.feeds).flatMap(c => c.events.map(e => ({ ...e, unit: c.unit }))));
+    const completed = ((prev && prev.completed) || []).filter(c => c.end >= addDays(todayNY, -400));
+    for (const s of merged) {
+      if (s.type !== 'stay' || s.end > todayNY) continue;
+      if (completed.some(c => c.unit === s.unit && c.end === s.end)) continue;
+      const u = unitById[s.unit];
+      // don't double count when a "Blocked" mirror later becomes a labeled booking on a linked unit (or vice versa)
+      if (completed.some(c => c.end === s.end && (c.source === 'Blocked' || s.source === 'Blocked') && related(u, unitById[c.unit]))) continue;
+      completed.push({ unit: s.unit, start: s.start, end: s.end, source: s.source });
+    }
+    completed.sort((a, b) => a.end.localeCompare(b.end));
+    cache.completed = completed;
     const events = Object.values(cache.feeds).flatMap(c => c.events.map(e => ({ ...e, unit: c.unit })));
     const activeUnits = new Set(Object.values(cache.feeds).map(c => c.unit));
     const data = {
       generatedAt: nowIso,
       title: cl.title, cleaner: cl.short, timezone: cfg.timezone,
-      properties: props.map(p => ({ id: p.id, name: p.name, units: cfg.units.filter(u => u.property === p.id && activeUnits.has(u.id)).map(u => ({ id: u.id, name: u.name, short: u.short, color: u.color, whole: !!u.whole, separate: !!u.separate })) })).filter(p => p.units.length),
+      properties: props.map(p => ({ id: p.id, name: p.name, units: cfg.units.filter(u => u.property === p.id && activeUnits.has(u.id)).map(u => ({ id: u.id, name: u.name, short: u.short, color: u.color, whole: !!u.whole, separate: !!u.separate })) })),
+      feedCals: feeds.map(f => ({ id: f.id, label: f.label, unit: f.unit, property: unitById[f.unit].property, color: f.color || unitById[f.unit].color, source: f.source, active: !!cache.feeds[f.id], events: cache.feeds[f.id] ? cache.feeds[f.id].events.map(e => ({ start: e.start, end: e.end, kind: e.kind })) : [] })),
+      completed: completed.map(c => ({ unit: c.unit, start: c.start, end: c.end, source: c.source })),
+      billing: cl.billing ? { rate: cl.billing.rate } : null,
+      gh: { owner: cfg.github.owner, repo: cfg.github.repo, stateBranch: cfg.github.stateBranch, privateRepo: cfg.github.privateRepo },
+      page: cl.id,
+      allUnits: cfg.units.filter(u => cl.properties.includes(u.property)).map(u => ({ id: u.id, name: `${cfg.properties.find(p => p.id === u.property).name} · ${u.short}` })),
       feeds: status.map(s => ({ ok: s.ok, lastOk: s.lastOk })),
       stays: merge(events).map(e => ({ unit: e.unit, start: e.start, end: e.end, source: e.source, type: e.type }))
     };
