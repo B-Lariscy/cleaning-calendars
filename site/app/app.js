@@ -116,14 +116,33 @@
   }
 
   function segColor(s, c) { return !s ? 'transparent' : s.type === 'closed' ? '#cbd5e1' : s.source === 'Blocked' ? c + '77' : c; }
-  function rowStyle(r) {
-    var hatch = 'repeating-linear-gradient(45deg,#d1d5db 0 4px,#f3f4f6 4px 8px)';
-    var Lc = r.L && r.L.type === 'closed', Rc = r.R && r.R.type === 'closed';
-    if (Lc && Rc) return 'background:' + hatch;
-    var l = segColor(r.L, r.color), rr = segColor(r.R, r.color);
-    var gap = r.split ? 'transparent 46%,transparent 54%,' : '';
-    var lr = r.L && !r.R ? ';border-radius:0 5px 5px 0' : (!r.L && r.R ? ';border-radius:5px 0 0 5px' : '');
-    return 'background:linear-gradient(90deg,' + l + ' 0,' + l + ' ' + (r.split ? '46%' : '50%') + ',' + gap + rr + ' ' + (r.split ? '54%' : '50%') + ',' + rr + ' 100%)' + lr;
+  // One continuous bar per stay per week-row (no gaps at cell borders). Check-in starts mid-cell, checkout ends mid-cell.
+  // Flat caps at week wraps; rounded caps only at the true start/end so back-to-back stays stay distinct.
+  function weekBars(weekStart, rows) {
+    var weekEnd = addDays(weekStart, 6), html = '';
+    rows.forEach(function (row, lane) {
+      row.stays.forEach(function (s) {
+        if (s.end < weekStart || s.start > weekEnd) return;
+        var startDay = 0, startFrac = 0, capL = false;
+        var endDay = 6, endFrac = 1, capR = false;
+        if (s.start >= weekStart) {
+          startDay = Math.round((Date.parse(s.start) - Date.parse(weekStart)) / 864e5);
+          startFrac = 0.53; capL = true;
+        }
+        if (s.end <= weekEnd) {
+          endDay = Math.round((Date.parse(s.end) - Date.parse(weekStart)) / 864e5);
+          endFrac = 0.47; capR = true;
+        }
+        if (endDay + endFrac <= startDay + startFrac) return;
+        var left = 'calc(' + (startDay + startFrac) + ' * (100% - 6 * var(--gg)) / 7 + ' + startDay + ' * var(--gg))';
+        var width = 'calc(' + ((endDay + endFrac) - (startDay + startFrac)) + ' * (100% - 6 * var(--gg)) / 7 + ' + (endDay - startDay) + ' * var(--gg))';
+        var cls = 'bar' + (capL ? ' s' : '') + (capR ? ' e' : '') + (s.type === 'closed' ? ' closed' : '');
+        var st = '--lane:' + lane + ';left:' + left + ';width:' + width;
+        if (s.type !== 'closed') st += ';background:' + segColor(s, row.color);
+        html += '<div class="' + cls + '" style="' + st + '"></div>';
+      });
+    });
+    return html;
   }
 
   function monthHtml(key, pid, title, sub, color, legend, rows, sameSpace) {
@@ -133,14 +152,18 @@
       '<div class="calhead"><button class="nav" data-nav="-1" aria-label="Previous month">‹</button><h3>' + title + '<small>' + esc(sub) + ' · ' + fmt(first, { month: 'long', year: 'numeric' }) + '</small></h3><button class="nav" data-nav="1" aria-label="Next month">›</button></div>';
     if (m !== today.slice(0, 7)) h += '<div style="text-align:center"><button class="todaybtn" data-nav="0">Back to this month</button></div>';
     h += '<div class="legend">' + legend + '<span>🧹 cleaning</span><span><i class="sw" style="box-shadow:inset 0 0 0 2px #dc2626"></i>same-day</span><span><i class="sw closed"></i>closed</span></div>';
-    h += '<div class="grid">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="dow">' + x + '</div>'; }).join('');
-    for (var i = 0; i < 42; i++) {
-      var d = addDays(start, i);
-      if (i === 35 && d.slice(0, 7) !== m) break;
-      var info = dayInfo(d, rows, sameSpace);
-      var cls = 'day' + (d.slice(0, 7) !== m ? ' out' : '') + (d === today ? ' today' : '') + (info.turn ? ' turn' : '') + (selected[key] === d ? ' sel' : '');
-      h += '<div class="' + cls + '" data-d="' + d + '"><div class="dn"><span>' + Number(d.slice(8)) + '</span>' + (info.brooms ? '<span class="broom">🧹</span>' : '') + '</div>' +
-        info.rows.map(function (r) { return '<div class="row" style="' + rowStyle(r) + '"></div>'; }).join('') + '</div>';
+    h += '<div class="grid"><div class="dows">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="dow">' + x + '</div>'; }).join('') + '</div>';
+    for (var w = 0; w < 6; w++) {
+      var ws = addDays(start, w * 7);
+      if (w === 5 && ws.slice(0, 7) !== m) break;
+      h += '<div class="week" style="--lanes:' + rows.length + '"><div class="weekdays">';
+      for (var i = 0; i < 7; i++) {
+        var d = addDays(ws, i);
+        var info = dayInfo(d, rows, sameSpace);
+        var cls = 'day' + (d.slice(0, 7) !== m ? ' out' : '') + (d === today ? ' today' : '') + (info.turn ? ' turn' : '') + (selected[key] === d ? ' sel' : '');
+        h += '<div class="' + cls + '" data-d="' + d + '"><div class="dn"><span>' + Number(d.slice(8)) + '</span>' + (info.brooms ? '<span class="broom">🧹</span>' : '') + '</div><div class="rowspace"></div></div>';
+      }
+      h += '</div><div class="lanes" aria-hidden="true">' + weekBars(ws, rows) + '</div></div>';
     }
     h += '</div>';
     var sd = selected[key];
