@@ -13,4 +13,5 @@ Self-updating cleaning schedules for cleaners, built from Airbnb/Vrbo iCal feeds
 2. `gh secret set FEED_CAMP_UP_AIRBNB -R B-Lariscy/cleaning-calendars` and paste the link (or Settings → Secrets and variables → Actions → New secret).
 3. Actions → "Update cleaning calendars" → Run workflow (or wait ~30 min).
 
-New unit? Add it to `units` and add one line to `feeds` in `config/units.json`.
+All planned feeds are already listed in `config/units.json` and in the workflow's `env:` block, so for those only step 2 is needed.
+A brand-new listing: add the unit to `units`, one line to `feeds` in `config/units.json`, and one `NAME: ${{ secrets.NAME }}` line in `.github/workflows/deploy.yml`.

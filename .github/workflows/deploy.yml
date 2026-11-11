@@ -25,7 +25,19 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Build sites (fetch feeds, strip private data)
         env:
-          FEED_SECRETS_JSON: ${{ toJSON(secrets) }}
+          # One line per feed secret (an unset secret is just empty and that feed is skipped)
+          FEED_HAYES_AIRBNB: ${{ secrets.FEED_HAYES_AIRBNB }}
+          FEED_HAYES_VRBO: ${{ secrets.FEED_HAYES_VRBO }}
+          FEED_CAMP_WHOLE_AIRBNB: ${{ secrets.FEED_CAMP_WHOLE_AIRBNB }}
+          FEED_CAMP_DOWN_VRBO: ${{ secrets.FEED_CAMP_DOWN_VRBO }}
+          FEED_CAMP_DOWN_AIRBNB: ${{ secrets.FEED_CAMP_DOWN_AIRBNB }}
+          FEED_CAMP_UP_AIRBNB: ${{ secrets.FEED_CAMP_UP_AIRBNB }}
+          FEED_JACKSON428_1_AIRBNB: ${{ secrets.FEED_JACKSON428_1_AIRBNB }}
+          FEED_JACKSON428_2_AIRBNB: ${{ secrets.FEED_JACKSON428_2_AIRBNB }}
+          FEED_JACKSON432_AIRBNB: ${{ secrets.FEED_JACKSON432_AIRBNB }}
+          FEED_MARBLE_BEACONS_AIRBNB: ${{ secrets.FEED_MARBLE_BEACONS_AIRBNB }}
+          FEED_MARBLE_KEEPERS_AIRBNB: ${{ secrets.FEED_MARBLE_KEEPERS_AIRBNB }}
+          FEED_MARBLE_LIMESTONES_AIRBNB: ${{ secrets.FEED_MARBLE_LIMESTONES_AIRBNB }}
           PREV_BASE_URL: ${{ steps.pages.outputs.base_url }}
         run: node scripts/build.mjs
       - name: Safety check (no private data in output)

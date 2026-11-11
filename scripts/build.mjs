@@ -1,5 +1,5 @@
 // Builds the cleaner sites. No dependencies (Node 20+).
-// Secrets: env FEED_SECRETS_JSON = JSON object {SECRET_NAME: "https://...ics"} (in CI: toJSON(secrets)).
+// Secrets: each feed's URL is read from env var <feed.secret> (mapped from GitHub Actions secrets in the workflow).
 // Previous deploy: env PREV_BASE_URL (e.g. https://user.github.io/repo/) used to keep last-good data when a feed fails.
 // Local testing: env LOCAL_FEEDS_DIR=/tmp/feeds with files <feed-id>.ics instead of fetching.
 import fs from 'node:fs';
@@ -12,8 +12,8 @@ const SITE = path.join(ROOT, 'site');
 const LONG_BLOCK_NIGHTS = 14;   // blocked ranges longer than this = "closed", not a guest stay
 const KEEP_PAST_DAYS = 45, KEEP_FUTURE_DAYS = 400;
 
-let secrets = {};
-try { secrets = JSON.parse(process.env.FEED_SECRETS_JSON || '{}') || {}; } catch { secrets = {}; }
+// Feed URLs come from environment variables named after each feed's secret (set in the workflow from GitHub secrets).
+const secrets = process.env;
 const nowIso = new Date().toISOString();
 const todayNY = new Intl.DateTimeFormat('en-CA', { timeZone: cfg.timezone }).format(new Date());
 
