@@ -1,37 +1,8 @@
 {
  "version": 1,
  "rate": 70,
- "baseline": {
-  "through": "2026-11-11",
-  "label": "Tracking started"
- },
- "payments": [
-  {
-   "id": "mwc281i6vpqa",
-   "date": "2026-11-10",
-   "amount": 70,
-   "cleanings": [],
-   "extras": [
-    "mwc27zaj5lo9"
-   ],
-   "recordedAt": "2026-11-11T11:52:53.406Z"
-  }
- ],
- "crossoffs": {
-  "camp-whole|2026-11-12": {
-   "reason": "Guests canceled",
-   "note": "",
-   "at": "2026-11-11"
-  }
- },
- "extras": [
-  {
-   "id": "mwc27zaj5lo9",
-   "date": "2026-11-08",
-   "unit": "camp-whole",
-   "amount": 70,
-   "note": "TEST extra"
-  }
- ],
- "updatedAt": "2026-11-11T11:52:53.406Z"
+ "baseline": {"through": "2026-11-11", "label": "Tracking started"},
+ "payments": [],
+ "crossoffs": {},
+ "extras": []
 }
