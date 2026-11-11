@@ -36,11 +36,15 @@
   }
   function readPublicState() {
     var loc = stateLoc();
-    return readFile(loc, owner).then(function (x) { return x.obj; }).catch(function () {
-      var g = D().gh; // fallback when the anonymous API limit is hit
-      return fetch('https://raw.githubusercontent.com/' + g.owner + '/' + g.repo + '/' + g.stateBranch + '/' + loc.path + '?t=' + Date.now(), { cache: 'no-store' })
+    // 1) GitHub API (always fresh)  2) raw file CDN (no rate limit, may lag ~5 min)  3) last copy on this device
+    var g = D().gh;
+    function raw(ref) {
+      return fetch('https://raw.githubusercontent.com/' + g.owner + '/' + g.repo + '/' + ref + '/' + loc.path + '?t=' + Date.now(), { cache: 'no-store' })
         .then(function (r) { if (!r.ok) throw new Error('raw ' + r.status); return r.json(); });
-    });
+    }
+    return readFile(loc, owner).then(function (x) { if (!x.obj) throw new Error('missing'); return x.obj; })
+      .catch(function () { return raw(g.stateBranch); })
+      .catch(function () { return raw('refs/heads/' + g.stateBranch); });
   }
   // Read-modify-write with retry on conflict
   function update(loc, def, mutate, what) {

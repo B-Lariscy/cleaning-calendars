@@ -9,6 +9,8 @@
   function addDays(d, n) { var t = new Date(d + 'T12:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
   function fmt(d, opts) { return new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', Object.assign({ timeZone: 'UTC' }, opts)); }
   function nice(d) { return fmt(d, { weekday: 'short', month: 'short', day: 'numeric' }); }
+  function nightsTxt(s) { var n = Math.round((Date.parse(s.end) - Date.parse(s.start)) / 864e5); return n + ' night' + (n === 1 ? '' : 's'); }
+  function stayTxt(s, long) { var f = long ? nice : function (d) { return fmt(d, { month: 'short', day: 'numeric' }); }; return 'Check in ' + f(s.start) + ' · Checkout ' + f(s.end) + ' · ' + nightsTxt(s); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
   function related(a, b) { return a.id === b.id || (a.prop === b.prop && !a.separate && !b.separate && (a.whole || b.whole)); }
   function el(id) { return document.getElementById(id); }
@@ -66,14 +68,15 @@
       shown += list.length;
       list.forEach(function (s) {
         var u = units[s.unit], n = nextArrival(s, all), nx;
-        if (n && n.start === s.end) nx = '<span class="sameday">SAME-DAY TURNOVER – guests arrive today</span>';
-        else if (n) nx = '<div class="next">Next guests arrive: <b>' + nice(n.start) + '</b>' + (n.unit !== s.unit ? ' (' + esc(units[n.unit].short) + ')' : '') + '</div>';
-        else nx = '<div class="next">Next guests arrive: <b>none booked yet</b></div>';
+        var nl = n ? '<div class="next">Next guests: <b>' + stayTxt(n, true) + '</b>' + (n.unit !== s.unit ? ' (' + esc(units[n.unit].short) + ')' : '') + '</div>' : '';
+        if (n && n.start === s.end) nx = '<span class="sameday">SAME-DAY TURNOVER – guests arrive today</span>' + nl;
+        else if (n) nx = nl;
+        else nx = '<div class="next">Next guests: <b>none booked yet</b></div>';
         var X = window.Pay ? Pay.crossed(s) : null;
         html += '<div class="card' + (X ? ' crossed' : '') + '" data-id="' + esc(s.unit + '|' + s.end) + '" style="border-left-color:' + u.color + '">' +
           '<div class="date">' + nice(s.end) + '</div>' +
           '<div class="where">' + esc(u.propName) + ' · ' + esc(u.short) + '</div>' +
-          '<div class="meta"><span class="pill">🧹 Clean after checkout</span><span class="pill ' + s.source + '">' + s.source + '</span><span class="pill">' + fmt(s.start, { month: 'short', day: 'numeric' }) + ' – ' + fmt(s.end, { month: 'short', day: 'numeric' }) + '</span></div>' +
+          '<div class="meta"><span class="pill">🧹 Clean after checkout</span><span class="pill ' + s.source + '">' + s.source + '</span></div><div class="staytxt">' + stayTxt(s) + '</div>' +
           nx +
           (s.source === 'Blocked' && !X ? '<div class="note">Dates blocked on Airbnb (usually a booking from another listing/site). Confirm with Branson if unsure.</div>' : '') +
           (window.Pay ? Pay.cardHtml(s) : '') +
@@ -102,11 +105,11 @@
         if (s.type === 'stay' && s.end === d) {
           var cx = window.Pay ? Pay.crossed(s) : null;
           if (cx) { out.lines.push('❌ <s>Clean: ' + nm + '</s> — crossed off (' + esc(cx.reason) + ')'); return; }
-          out.brooms++; out.lines.push('🧹 Checkout / clean: <b>' + nm + '</b> (' + s.source + ')');
+          out.brooms++; out.lines.push('🧹 Checkout / clean: <b>' + nm + '</b> (' + s.source + ') — ' + stayTxt(s));
           if (sameSpace(s, d)) out.turn = true;
         }
-        if (s.type === 'stay' && s.start === d) out.lines.push('🔑 Guests arrive: <b>' + nm + '</b> (' + s.source + ')');
-        if (s.start < d && d < s.end) out.lines.push((s.type === 'closed' ? '⛔ Closed/blocked: ' : (s.source === 'Blocked' ? '🚫 Blocked: ' : '🛏️ Occupied: ')) + '<b>' + nm + '</b>');
+        if (s.type === 'stay' && s.start === d) out.lines.push('🔑 Guests arrive: <b>' + nm + '</b> (' + s.source + ') — ' + stayTxt(s));
+        if (s.start < d && d < s.end) out.lines.push((s.type === 'closed' ? '⛔ Closed/blocked: ' : (s.source === 'Blocked' ? '🚫 Blocked: ' : '🛏️ Occupied: ')) + '<b>' + nm + '</b> — ' + stayTxt(s));
       });
     });
     return out;
