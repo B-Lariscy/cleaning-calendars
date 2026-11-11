@@ -1,0 +1,3 @@
+dist/
+*.ics
+node_modules/

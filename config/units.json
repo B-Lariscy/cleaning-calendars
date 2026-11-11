@@ -1,0 +1,40 @@
+{
+  "_help": "Non-secret config. Each feed reads its iCal URL from the GitHub Actions secret named in 'secret'. If that secret is missing/empty the feed is skipped silently. To add a calendar: add the secret, then (if not already listed) add one line to 'feeds'.",
+  "timezone": "America/New_York",
+  "cleaners": [
+    { "id": "season",  "title": "Season's Cleaning Schedule",  "short": "Season",  "properties": ["camp", "hayes"] },
+    { "id": "madison", "title": "Madison's Cleaning Schedule", "short": "Madison", "properties": ["jackson", "marblehead"] }
+  ],
+  "properties": [
+    { "id": "camp",       "name": "Camp Street" },
+    { "id": "hayes",      "name": "Hayes Ave" },
+    { "id": "jackson",    "name": "Jackson Street" },
+    { "id": "marblehead", "name": "Marblehead" }
+  ],
+  "units": [
+    { "id": "camp-whole",       "property": "camp",       "name": "Whole House (Grand Gathering)", "short": "Whole House", "whole": true,  "color": "#7c3aed" },
+    { "id": "camp-down",        "property": "camp",       "name": "Downstairs (Camp Down)",        "short": "Downstairs",  "whole": false, "color": "#0284c7" },
+    { "id": "camp-up",          "property": "camp",       "name": "Upstairs (Camp Up / Penthouse)", "short": "Upstairs",   "whole": false, "color": "#ea580c" },
+    { "id": "hayes",            "property": "hayes",      "name": "913 Hayes Ave",                 "short": "Hayes",       "whole": true,  "color": "#16a34a" },
+    { "id": "jackson428-1",     "property": "jackson",    "name": "428 Jackson – 1st Floor",       "short": "428 1st Fl",  "whole": false, "color": "#0284c7" },
+    { "id": "jackson428-2",     "property": "jackson",    "name": "428 Jackson – 2nd Floor",       "short": "428 2nd Fl",  "whole": false, "color": "#ea580c" },
+    { "id": "jackson432",       "property": "jackson",    "name": "432 Jackson",                   "short": "432 Jackson", "whole": true,  "color": "#16a34a", "separate": true },
+    { "id": "marble-keepers",   "property": "marblehead", "name": "Whole House (Keepers)",         "short": "Whole House", "whole": true,  "color": "#7c3aed" },
+    { "id": "marble-beacons",   "property": "marblehead", "name": "Upstairs (Beacons)",            "short": "Upstairs",    "whole": false, "color": "#ea580c" },
+    { "id": "marble-limestones","property": "marblehead", "name": "Ground Floor (Limestones)",     "short": "Ground Floor","whole": false, "color": "#0284c7" }
+  ],
+  "feeds": [
+    { "id": "hayes-airbnb",            "unit": "hayes",             "source": "Airbnb", "secret": "FEED_HAYES_AIRBNB" },
+    { "id": "hayes-vrbo",              "unit": "hayes",             "source": "Vrbo",   "secret": "FEED_HAYES_VRBO" },
+    { "id": "camp-whole-airbnb",       "unit": "camp-whole",        "source": "Airbnb", "secret": "FEED_CAMP_WHOLE_AIRBNB" },
+    { "id": "camp-down-vrbo",          "unit": "camp-down",         "source": "Vrbo",   "secret": "FEED_CAMP_DOWN_VRBO" },
+    { "id": "camp-down-airbnb",        "unit": "camp-down",         "source": "Airbnb", "secret": "FEED_CAMP_DOWN_AIRBNB" },
+    { "id": "camp-up-airbnb",          "unit": "camp-up",           "source": "Airbnb", "secret": "FEED_CAMP_UP_AIRBNB" },
+    { "id": "jackson428-1-airbnb",     "unit": "jackson428-1",      "source": "Airbnb", "secret": "FEED_JACKSON428_1_AIRBNB" },
+    { "id": "jackson428-2-airbnb",     "unit": "jackson428-2",      "source": "Airbnb", "secret": "FEED_JACKSON428_2_AIRBNB" },
+    { "id": "jackson432-airbnb",       "unit": "jackson432",        "source": "Airbnb", "secret": "FEED_JACKSON432_AIRBNB" },
+    { "id": "marble-beacons-airbnb",   "unit": "marble-beacons",    "source": "Airbnb", "secret": "FEED_MARBLE_BEACONS_AIRBNB" },
+    { "id": "marble-keepers-airbnb",   "unit": "marble-keepers",    "source": "Airbnb", "secret": "FEED_MARBLE_KEEPERS_AIRBNB" },
+    { "id": "marble-limestones-airbnb","unit": "marble-limestones", "source": "Airbnb", "secret": "FEED_MARBLE_LIMESTONES_AIRBNB" }
+  ]
+}
