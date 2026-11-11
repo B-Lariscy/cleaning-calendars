@@ -1,12 +1,8 @@
 {
  "version": 1,
  "rate": 70,
- "baseline": {
-  "through": "2026-11-11",
-  "label": "Tracking started"
- },
+ "baseline": {"through": "2026-11-11", "label": "Tracking started"},
  "payments": [],
  "crossoffs": {},
- "extras": [],
- "updatedAt": "probe1"
+ "extras": []
 }
