@@ -89,3 +89,18 @@ summary{font-weight:700;font-size:16px;cursor:pointer;min-height:36px;padding:6p
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:90%}
 .toast.err{background:#b91c1c}
 .staytxt{margin-top:8px;font-size:16px;font-weight:600;color:#374151}
+
+.payrow{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:16px}
+.payrow.tight{padding:6px 0;font-size:15px}
+.payrow .run{font-weight:800;white-space:nowrap;color:#0f766e}
+.payrow.track{color:#6b7280}
+.mismatch{display:inline-block;margin-left:4px;font-size:12px;font-weight:700;color:#b45309;background:#fef3c7;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.byunit{margin:8px 0 14px;padding:8px 10px 6px;background:#f8fafc;border-radius:12px}
+.byunit > .ttl{font-weight:800;margin:2px 0 6px;font-size:16px}
+.byunit details{margin-top:0;border-bottom:1px solid #e5e7eb}
+.byunit summary{font-size:15px;padding:8px 0;line-height:1.3}
+@media (max-width:600px){
+  .payrow{flex-direction:column;align-items:stretch;gap:2px}
+  .payrow .run{align-self:flex-end}
+  #pay details[data-d="openHist"] > summary{font-size:15px}
+}

@@ -9,7 +9,13 @@
 
   function D() { return A.data; }
   function esc(s) { return A.esc(s == null ? '' : s); }
-  function money(n) { n = Math.round(Number(n || 0) * 100) / 100; return '$' + (n % 1 ? n.toFixed(2) : String(n)); }
+  function money(n) {
+    n = Math.round(Number(n || 0) * 100) / 100;
+    var neg = n < 0; n = Math.abs(n);
+    var s = n % 1 ? n.toFixed(2) : String(n);
+    var parts = s.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg ? '-$' : '$') + parts.join('.');
+  }
   function longDate(d) { return A.fmt(d, { month: 'short', day: 'numeric', year: 'numeric' }); }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   function b64e(str) { var b = new TextEncoder().encode(str), s = ''; for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s); }
@@ -68,7 +74,7 @@
     return attempt(0).finally(function () { busy = false; });
   }
   function defState() {
-    var b = D().billing || {}, s = { version: 1, baseline: { through: A.todayNY(), label: 'Tracking started' }, payments: [], crossoffs: {}, extras: [] };
+    var b = D().billing || {}, s = { version: 1, baseline: { through: A.todayNY(), label: 'Tracking started' }, payments: [], crossoffs: {}, extras: [], history: [] };
     if (!b.rates && b.rate != null) s.rate = b.rate;
     return s;
   }
@@ -181,6 +187,99 @@
   };
   window.Pay = Pay;
 
+
+  function histUnitLabel(id) {
+    var map = {
+      'camp-up': 'Camp Up', 'camp-down': 'Camp Down', 'camp-whole': 'Whole House (Grand Gathering)', 'hayes': 'Hayes',
+      'jackson428-1': '428 Jackson 1st floor', 'jackson428-2': '428 Jackson 2nd floor', 'jackson432': '432 Jackson',
+      'marble-keepers': 'Keepers', 'marble-beacons': 'Beacons', 'marble-limestones': 'Limestones',
+      'jackson-unspecified': 'Jackson (unit not specified)', 'unspecified': 'Unspecified', 'other': 'Other / supplies / adjustments'
+    };
+    return map[id] || unitBillLabel(id) || unitName(id) || id;
+  }
+  function officialHistUnits() {
+    return D().page === 'madison'
+      ? ['jackson428-1', 'jackson428-2', 'jackson432', 'marble-keepers', 'marble-beacons', 'marble-limestones']
+      : ['camp-up', 'camp-down', 'camp-whole', 'hayes'];
+  }
+  // Build a history row from a Mark-paid bill payment (uses the cleanings it cleared).
+  function itemsFromBillPayment(B, amount) {
+    var by = {}, used = 0, items = [];
+    (B.unpaid || []).forEach(function (i) {
+      var u = i.s.unit, amt = rateFor(u);
+      if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
+      by[u].count++; by[u].amount += amt; used += amt;
+    });
+    (B.extras || []).forEach(function (x) {
+      var u = x.unit || 'other', amt = Number(x.amount || 0);
+      if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
+      by[u].count++; by[u].amount += amt; used += amt;
+    });
+    Object.keys(by).forEach(function (u) { by[u].amount = Math.round(by[u].amount * 100) / 100; items.push(by[u]); });
+    var diff = Math.round((Number(amount) - used) * 100) / 100;
+    if (diff) {
+      if (!items.length) items.push({ unit: 'unspecified', count: 0, amount: diff });
+      else items.push({ unit: 'other', count: 0, amount: diff, detail: 'amount differs from listed cleanings' });
+    }
+    return items;
+  }
+  function historyFromBillPayment(p) {
+    var items = p.items;
+    if (!items) {
+      // Older Mark-paid rows: attribute each cleared cleaning id ("unit|end") to that unit.
+      items = [];
+      var by = {};
+      (p.cleanings || []).forEach(function (id) {
+        var u = String(id).split('|')[0];
+        if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
+        by[u].count++; by[u].amount += rateFor(u);
+      });
+      (p.extras || []).forEach(function (eid) {
+        var x = ((state && state.extras) || []).find(function (e) { return e.id === eid; });
+        var u = (x && x.unit) || 'other', amt = x ? Number(x.amount || 0) : 0;
+        if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
+        by[u].count++; by[u].amount += amt;
+      });
+      Object.keys(by).forEach(function (u) { by[u].amount = Math.round(by[u].amount * 100) / 100; items.push(by[u]); });
+      var used = items.reduce(function (t, i) { return t + i.amount; }, 0);
+      var diff = Math.round((Number(p.amount) - used) * 100) / 100;
+      if (diff) {
+        if (!items.length) items.push({ unit: 'unspecified', count: 0, amount: diff });
+        else items.push({ unit: 'other', count: 0, amount: diff, detail: 'amount differs from listed cleanings' });
+      }
+    }
+    return { id: p.id, date: p.date, amount: Number(p.amount || 0), method: p.method || 'Marked paid', items: items, mismatch: !!p.mismatch };
+  }
+  // Display ledger = state.history (does not affect owed) plus any Mark-paid rows not already copied into history.
+  function allHistory() {
+    var hist = ((state && state.history) || []).map(function (p) { return { id: p.id, date: p.date, amount: Number(p.amount || 0), method: p.method || '', items: p.items || [], mismatch: !!p.mismatch }; });
+    var seen = {};
+    hist.forEach(function (p) { if (p.id) seen[p.id] = true; });
+    ((state && state.payments) || []).forEach(function (p) {
+      if (p.id && seen[p.id]) return;
+      hist.push(historyFromBillPayment(p));
+    });
+    hist.sort(function (a, b) { return (a.date + (a.id || '')).localeCompare(b.date + (b.id || '')); });
+    var run = 0;
+    return hist.map(function (p) {
+      run = Math.round((run + Number(p.amount)) * 100) / 100;
+      return { id: p.id, date: p.date, amount: p.amount, method: p.method, items: p.items, mismatch: p.mismatch, run: run };
+    });
+  }
+  function unitBuckets(rows) {
+    var map = {};
+    rows.forEach(function (p) {
+      (p.items || []).forEach(function (it) {
+        var u = it.unit || 'unspecified';
+        if (!map[u]) map[u] = { unit: u, count: 0, amount: 0, rows: [] };
+        map[u].count += Number(it.count || 0);
+        map[u].amount = Math.round((map[u].amount + Number(it.amount || 0)) * 100) / 100;
+        map[u].rows.push({ date: p.date, count: it.count || 0, amount: it.amount, detail: it.detail, method: p.method });
+      });
+    });
+    return map;
+  }
+
   function renderBar() {
     var b = document.getElementById('ownerBar');
     if (!owner) { if (b) b.remove(); return; }
@@ -223,16 +322,42 @@
       return '<div class="li"><span class="strike">' + A.nice(i.s.end) + ' · ' + esc(unitName(i.s.unit)) + '</span><span class="note">' + esc(X.reason) + (owner ? ' <button class="btn small" data-act="uncross" data-id="' + esc(i.id) + '">Undo</button>' : '') + '</span></div>';
     }));
     h += '<details' + (ui.openBreak ? ' open' : '') + ' data-d="openBreak"><summary>What\'s included (' + (n + B.extras.length) + ')</summary>' + (rows.length ? rows.join('') : '<div class="note">Nothing yet. Cleanings are added after their checkout day.</div>') + '</details>';
-    // history
-    var hist = B.pays.slice().reverse().map(function (p, i) {
-      var c = (p.cleanings || []).length, x = (p.extras || []).length;
-      return '<div class="li"><span><b>' + longDate(p.date) + '</b> — ' + money(p.amount) + '<br><span class="note">' + c + ' cleaning' + (c === 1 ? '' : 's') + (x ? ', ' + x + ' extra' + (x === 1 ? '' : 's') : '') + '</span></span>' +
-        (owner && i === 0 ? '<button class="btn small danger" data-act="paydel" data-id="' + esc(p.id) + '">Delete</button>' : '') + '</div>';
+    // history (ledger: historical 2026 payments + later Mark-paid / synced payments — does not change owed)
+    var led = allHistory();
+    var total = led.length ? led[led.length - 1].run : 0, nPay = led.length;
+    var newestFirst = led.slice().reverse();
+    var through = B.through;
+    var histRows = [];
+    // Insert the tracking-start marker at its date (newest first).
+    var placedTrack = false;
+    newestFirst.forEach(function (p, i) {
+      if (!placedTrack && p.date <= through) {
+        histRows.push('<div class="payrow track"><span>' + longDate(through) + ' — <i>Tracking started</i> (not a payment)</span></div>');
+        placedTrack = true;
+      }
+      var canDel = owner && (state.payments || []).some(function (x) { return x.id === p.id; }) && i === 0 && p.date > through;
+      histRows.push('<div class="payrow"><span><b>' + longDate(p.date) + '</b> — ' + money(p.amount) + (p.method ? ' · ' + esc(p.method) : '') +
+        (p.mismatch ? ' <span class="mismatch">parsed total differs</span>' : '') +
+        (canDel ? ' <button class="btn small danger" data-act="paydel" data-id="' + esc(p.id) + '">Delete</button>' : '') +
+        '</span><span class="run">' + money(p.run) + '</span></div>');
     });
-    hist.push('<div class="li"><span>' + longDate(B.through) + ' — <i>Tracking started</i> (not a payment)</span></div>');
-    h += '<details' + (ui.openHist ? ' open' : '') + ' data-d="openHist"><summary>Payment history (' + B.pays.length + ')</summary>' + hist.join('') + '</details>';
+    if (!placedTrack) histRows.push('<div class="payrow track"><span>' + longDate(through) + ' — <i>Tracking started</i> (not a payment)</span></div>');
+    var buckets = unitBuckets(led);
+    var unitIds = officialHistUnits().slice();
+    ['jackson-unspecified', 'unspecified', 'other'].forEach(function (u) { if (buckets[u] && buckets[u].amount) unitIds.push(u); });
+    var unitHtml = unitIds.map(function (u) {
+      var b = buckets[u] || { count: 0, amount: 0, rows: [] };
+      var open = ui.units && ui.units[u] ? ' open' : '';
+      var inner = (b.rows || []).slice().reverse().map(function (r) {
+        return '<div class="payrow tight"><span>' + longDate(r.date) + (r.count ? ' · ' + r.count + ' cleaning' + (r.count === 1 ? '' : 's') : '') + (r.detail ? ' · ' + esc(r.detail) : '') + '</span><span class="amt">' + money(r.amount) + '</span></div>';
+      }).join('') || '<div class="note">No payments yet for this unit.</div>';
+      return '<details' + open + ' data-u="' + esc(u) + '"><summary>' + esc(histUnitLabel(u)) + ' — ' + b.count + ' cleaning' + (b.count === 1 ? '' : 's') + ' · ' + money(b.amount) + '</summary>' + inner + '</details>';
+    }).join('');
+    h += '<details' + (ui.openHist ? ' open' : '') + ' data-d="openHist"><summary>Payment history — ' + money(total) + ' · ' + nPay + ' payment' + (nPay === 1 ? '' : 's') + '</summary>' +
+      '<div class="byunit"><div class="ttl">By unit</div>' + unitHtml + '</div>' + histRows.join('') + '</details>';
     box.innerHTML = h;
-    box.querySelectorAll('details').forEach(function (d) { d.addEventListener('toggle', function () { ui[d.getAttribute('data-d')] = d.open; }); });
+    box.querySelectorAll('details[data-d]').forEach(function (d) { d.addEventListener('toggle', function () { ui[d.getAttribute('data-d')] = d.open; }); });
+    box.querySelectorAll('details[data-u]').forEach(function (d) { d.addEventListener('toggle', function () { ui.units = ui.units || {}; ui.units[d.getAttribute('data-u')] = d.open; }); });
     var xunit = box.querySelector('#xunit'), xamt = box.querySelector('#xamt');
     if (xunit && xamt) xunit.addEventListener('change', function () { xamt.value = rateFor(xunit.value); });
   }
@@ -297,10 +422,16 @@
       var B = bill(), pd = val('pdate'), pa = Number(val('pamt'));
       if (!pd || !(pa >= 0)) { toast('Check the date and amount', true); return; }
       var cl = B.unpaid.map(function (i) { return i.id; }), ex = B.extras.map(function (x) { return x.id; });
-      saveState(function (s) { s.payments = s.payments || []; s.payments.push({ id: uid(), date: pd, amount: pa, cleanings: cl, extras: ex, recordedAt: new Date().toISOString() }); }, 'Record payment ' + pd);
+      var hid = uid(), items = itemsFromBillPayment(B, pa);
+      saveState(function (s) {
+        s.payments = s.payments || [];
+        s.payments.push({ id: hid, date: pd, amount: pa, cleanings: cl, extras: ex, method: 'Marked paid', recordedAt: new Date().toISOString() });
+        s.history = s.history || [];
+        s.history.push({ id: hid, date: pd, amount: pa, method: 'Marked paid', items: items });
+      }, 'Record payment ' + pd);
       return;
     }
-    if (act === 'paydel') { if (!confirm('Delete this payment? Its cleanings go back on the bill.')) return; saveState(function (s) { s.payments = (s.payments || []).filter(function (p) { return p.id !== id; }); }, 'Delete payment'); return; }
+    if (act === 'paydel') { if (!confirm('Delete this payment? Its cleanings go back on the bill.')) return; saveState(function (s) { s.payments = (s.payments || []).filter(function (p) { return p.id !== id; }); s.history = (s.history || []).filter(function (p) { return p.id !== id; }); }, 'Delete payment'); return; }
     if (act === 'refundsave') {
       var ra = Number(val('ramt')), rd = val('rdate');
       if (!rd || !(ra > 0)) { toast('Enter the refund amount', true); return; }
