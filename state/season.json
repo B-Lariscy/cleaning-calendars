@@ -1,8 +1,578 @@
 {
  "version": 1,
  "rate": 70,
- "baseline": {"through": "2026-11-11", "label": "Tracking started"},
+ "baseline": {
+  "through": "2026-11-11",
+  "label": "Tracking started"
+ },
  "payments": [],
  "crossoffs": {},
- "extras": []
+ "extras": [],
+ "history": [
+  {
+   "id": "9670081aeb5f0318375cb055d2ffbf6330a34709c8987316bbce320b7df816ed",
+   "date": "2026-01-20",
+   "amount": 1050.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-whole",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "other",
+     "count": 0,
+     "amount": 280.0,
+     "detail": "unparsed difference"
+    }
+   ],
+   "mismatch": true
+  },
+  {
+   "id": "0750ad74a82baa035c4de076688b070449c3c2674246b3438404e93307e8f06f",
+   "date": "2026-01-30",
+   "amount": 100.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "other",
+     "count": 0,
+     "amount": 100.0,
+     "detail": "snow removal"
+    }
+   ]
+  },
+  {
+   "id": "fb9832f643621b319fbfb41705a2e928f906ee6bbcdaaf238095b41c13a5661b",
+   "date": "2026-02-17",
+   "amount": 700.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "unspecified",
+     "count": 10,
+     "amount": 700.0
+    }
+   ]
+  },
+  {
+   "id": "f89f5c21075d510ac29534d55a8b62a3b9dc29d79b51311e2dec4009a43ba861",
+   "date": "2026-03-20",
+   "amount": 700.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 6,
+     "amount": 420.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 2,
+     "amount": 140.0
+    }
+   ]
+  },
+  {
+   "id": "6a48a478aa02f30067928d0de16821fe3e9c171ccc56caec1bb1f77b380820c4",
+   "date": "2026-04-08",
+   "amount": 770.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 4,
+     "amount": 280.0
+    },
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    }
+   ]
+  },
+  {
+   "id": "fbdb08ccf6ad36de30c27e75cb8bc55e73acf53242451521556dc8ebcb06e8f0",
+   "date": "2026-04-21",
+   "amount": 490.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    }
+   ]
+  },
+  {
+   "id": "9cf02a82f9c645d338590662ad87b4b0e9c670f0fd9f9f98381c925b07cb76d8",
+   "date": "2026-05-10",
+   "amount": 350.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  },
+  {
+   "id": "87340732d0feaf67ea63ae06e9a92c1c173ec0e8ecc31749f4c98f58702d1363",
+   "date": "2026-06-01",
+   "amount": 980.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 4,
+     "amount": 280.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 5,
+     "amount": 350.0
+    }
+   ]
+  },
+  {
+   "id": "289d24172bb206e4d2a20ab31e31b3e161147beb0811831613e894a5df7d4cfa",
+   "date": "2026-06-08",
+   "amount": 613.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "other",
+     "count": 0,
+     "amount": 53.0,
+     "detail": "supplies"
+    }
+   ]
+  },
+  {
+   "id": "1679bf1c31cbf2f90aa65a05015cee42a91a27bd3f25dc68949bfdc6845b9f9f",
+   "date": "2026-06-24",
+   "amount": 840.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "hayes",
+     "count": 4,
+     "amount": 280.0
+    }
+   ]
+  },
+  {
+   "id": "1131ce652cd2d8317dfb832f0be2cea2a619a86e2ccb9bb90e73c328aacf5314",
+   "date": "2026-07-06",
+   "amount": 630.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "hayes",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  },
+  {
+   "id": "56c3d823cd356ab0c1293de4d3f0a0ac2dbff84c93aba9f5b0541c887334455d",
+   "date": "2026-07-13",
+   "amount": 560.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 4,
+     "amount": 280.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  },
+  {
+   "id": "a09b483683d70058881be13c019283cba8d5676b2458747cf9e4c29ab7049a6e",
+   "date": "2026-07-27",
+   "amount": 840.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 4,
+     "amount": 280.0
+    }
+   ]
+  },
+  {
+   "id": "8a7225ac741d9c2e36f86a6a3bcda5e5e634f45328cef752cd7896dc66460bfb",
+   "date": "2026-08-04",
+   "amount": 630.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 3,
+     "amount": 210.0
+    }
+   ]
+  },
+  {
+   "id": "5d56ea6bf93b01135ad8091dd8e8ab12095b7fae24209825f0ffc0842dac17da",
+   "date": "2026-08-12",
+   "amount": 560.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 3,
+     "amount": 210.0
+    }
+   ]
+  },
+  {
+   "id": "df043ee6bf014f79dc10917c6b446252c32059f1fae9bec872525e358485fc28",
+   "date": "2026-08-18",
+   "amount": 490.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 3,
+     "amount": 210.0
+    },
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 2,
+     "amount": 140.0
+    }
+   ]
+  },
+  {
+   "id": "eb4ab2a65af102b63e04fb16a12abb0d963e74e7829ede7d07c9cfe57fcfd513",
+   "date": "2026-08-25",
+   "amount": 420.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 2,
+     "amount": 140.0
+    }
+   ]
+  },
+  {
+   "id": "5e3200b7cfd64513214a26ed5136b104ce058c1b1c77bbe6c9f637a31810fbca",
+   "date": "2026-08-31",
+   "amount": 140.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 1,
+     "amount": 70.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  },
+  {
+   "id": "53e3381c50223aa291943934b7d2141778dbf91efbc49d61d660f0349ba2442e",
+   "date": "2026-09-07",
+   "amount": 140.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 1,
+     "amount": 70.0
+    },
+    {
+     "unit": "other",
+     "count": 1,
+     "amount": 70.0,
+     "detail": "First St"
+    }
+   ]
+  },
+  {
+   "id": "f28a618ced285403aa33550a085474097b302039386a0aa18828bc23c9f3ceb7",
+   "date": "2026-09-18",
+   "amount": 350.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 1,
+     "amount": 70.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "other",
+     "count": 1,
+     "amount": 70.0,
+     "detail": "First St"
+    }
+   ]
+  },
+  {
+   "id": "93a6eb42f55ea0581cde8fe4d3dc981c9453e7696b54689380cb5ca8c4f6d066",
+   "date": "2026-09-20",
+   "amount": 140.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-whole",
+     "count": 2,
+     "amount": 140.0
+    }
+   ]
+  },
+  {
+   "id": "7d032d16006cf7b40fd712257ea108b19b228070788ff90a1ee11b526abdc24d",
+   "date": "2026-10-01",
+   "amount": 280.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    },
+    {
+     "unit": "camp-up",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  },
+  {
+   "id": "03754f5b3afe02f915ded944973e5b3e812c42b991e4fe10c33bc99750d1382c",
+   "date": "2026-10-08",
+   "amount": 140.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 1,
+     "amount": 70.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  },
+  {
+   "id": "795d1f84ca3fbc51d131528c1a9f351142b726503c15eeabef544865815cb240",
+   "date": "2026-10-16",
+   "amount": 20.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "other",
+     "count": 0,
+     "amount": 20.0,
+     "detail": "no note"
+    }
+   ]
+  },
+  {
+   "id": "69651cd7061a3c9f161355dc881cc9514d50dc9a938ac39f416d1c7cdbe55f54",
+   "date": "2026-10-25",
+   "amount": 1050.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 4,
+     "amount": 280.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 7,
+     "amount": 490.0
+    },
+    {
+     "unit": "hayes",
+     "count": 4,
+     "amount": 280.0
+    }
+   ]
+  },
+  {
+   "id": "e3cd13fa67a0f2fc4247690c192e459cc584a43d814e876d92d8850e406b8f7b",
+   "date": "2026-11-07",
+   "amount": 560.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 5,
+     "amount": 350.0
+    },
+    {
+     "unit": "hayes",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
+  }
+ ]
 }
