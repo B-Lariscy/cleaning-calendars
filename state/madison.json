@@ -15,7 +15,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
      "detail": "Marblehead"
@@ -29,7 +29,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 2,
      "amount": 180.0
     }
@@ -42,7 +42,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
      "detail": "Marblehead"
@@ -69,7 +69,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
      "detail": "Marblehead"
@@ -208,7 +208,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
      "detail": "Marblehead"
@@ -300,18 +300,13 @@
    "items": [
     {
      "unit": "jackson428-1",
-     "count": 3,
-     "amount": 225.0
+     "count": 6,
+     "amount": 495.0
     },
     {
      "unit": "marble-keepers",
      "count": 2,
      "amount": 350.0
-    },
-    {
-     "unit": "jackson-unspecified",
-     "count": 3,
-     "amount": 270.0
     }
    ]
   },
@@ -323,8 +318,8 @@
    "items": [
     {
      "unit": "jackson428-1",
-     "count": 1,
-     "amount": 75.0
+     "count": 2,
+     "amount": 165.0
     },
     {
      "unit": "marble-keepers",
@@ -335,11 +330,6 @@
      "unit": "marble-beacons",
      "count": 1,
      "amount": 100.0
-    },
-    {
-     "unit": "jackson-unspecified",
-     "count": 1,
-     "amount": 90.0
     }
    ]
   },
@@ -351,18 +341,13 @@
    "items": [
     {
      "unit": "jackson428-1",
-     "count": 1,
-     "amount": 75.0
+     "count": 3,
+     "amount": 255.0
     },
     {
      "unit": "marble-keepers",
      "count": 3,
      "amount": 525.0
-    },
-    {
-     "unit": "jackson-unspecified",
-     "count": 2,
-     "amount": 180.0
     }
    ]
   },
@@ -378,14 +363,9 @@
      "amount": 350.0
     },
     {
-     "unit": "jackson-unspecified",
-     "count": 1,
-     "amount": 90.0
-    },
-    {
      "unit": "jackson428-1",
-     "count": 1,
-     "amount": 75.0
+     "count": 2,
+     "amount": 165.0
     }
    ]
   },
@@ -402,13 +382,8 @@
     },
     {
      "unit": "jackson428-1",
-     "count": 2,
-     "amount": 150.0
-    },
-    {
-     "unit": "jackson-unspecified",
-     "count": 2,
-     "amount": 215.0
+     "count": 4,
+     "amount": 365.0
     }
    ]
   },
@@ -419,19 +394,14 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
-     "count": 2,
-     "amount": 180.0
+     "unit": "jackson428-1",
+     "count": 3,
+     "amount": 255.0
     },
     {
      "unit": "marble-keepers",
      "count": 2,
      "amount": 350.0
-    },
-    {
-     "unit": "jackson428-1",
-     "count": 1,
-     "amount": 75.0
     }
    ]
   },
@@ -443,18 +413,13 @@
    "items": [
     {
      "unit": "jackson428-1",
-     "count": 3,
-     "amount": 225.0
+     "count": 4,
+     "amount": 315.0
     },
     {
      "unit": "marble-keepers",
      "count": 3,
      "amount": 525.0
-    },
-    {
-     "unit": "jackson-unspecified",
-     "count": 1,
-     "amount": 90.0
     }
    ]
   },
@@ -465,14 +430,9 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
-     "count": 3,
-     "amount": 270.0
-    },
-    {
      "unit": "jackson428-1",
-     "count": 3,
-     "amount": 225.0
+     "count": 6,
+     "amount": 495.0
     },
     {
      "unit": "marble-keepers",
@@ -499,20 +459,15 @@
      "amount": 525.0
     },
     {
-     "unit": "jackson-unspecified",
-     "count": 1,
-     "amount": 90.0
+     "unit": "jackson428-1",
+     "count": 2,
+     "amount": 165.0
     },
     {
      "unit": "other",
      "count": 1,
      "amount": 150.0,
      "detail": "Jefferson"
-    },
-    {
-     "unit": "jackson428-1",
-     "count": 1,
-     "amount": 75.0
     }
    ]
   },
@@ -524,18 +479,13 @@
    "items": [
     {
      "unit": "jackson428-1",
-     "count": 3,
-     "amount": 225.0
+     "count": 4,
+     "amount": 315.0
     },
     {
      "unit": "marble-keepers",
      "count": 2,
      "amount": 350.0
-    },
-    {
-     "unit": "jackson-unspecified",
-     "count": 1,
-     "amount": 90.0
     }
    ]
   },
@@ -564,20 +514,15 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
-     "count": 2,
-     "amount": 180.0
+     "unit": "jackson428-1",
+     "count": 4,
+     "amount": 330.0
     },
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 3,
      "amount": 525.0,
      "detail": "Marblehead"
-    },
-    {
-     "unit": "jackson428-1",
-     "count": 2,
-     "amount": 150.0
     }
    ]
   },
@@ -588,9 +533,9 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
-     "count": 1,
-     "amount": 90.0
+     "unit": "jackson428-1",
+     "count": 2,
+     "amount": 165.0
     },
     {
      "unit": "marble-beacons",
@@ -601,11 +546,6 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0
-    },
-    {
-     "unit": "jackson428-1",
-     "count": 1,
-     "amount": 75.0
     }
    ]
   },
@@ -634,7 +574,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
      "detail": "Marblehead"
@@ -648,7 +588,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 2,
      "amount": 180.0
     },
@@ -666,7 +606,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 1,
      "amount": 90.0
     }
@@ -679,7 +619,7 @@
    "method": "PayPal",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 1,
      "amount": 90.0
     }
@@ -692,7 +632,7 @@
    "method": "PayPal",
    "items": [
     {
-     "unit": "unspecified",
+     "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
      "detail": "Marblehead"
@@ -706,7 +646,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 2,
      "amount": 180.0
     },
@@ -730,7 +670,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 2,
      "amount": 180.0
     },
@@ -759,7 +699,7 @@
      "amount": 100.0
     },
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 1,
      "amount": 90.0
     },
@@ -777,7 +717,7 @@
    "method": "Venmo",
    "items": [
     {
-     "unit": "jackson-unspecified",
+     "unit": "jackson428-1",
      "count": 2,
      "amount": 180.0
     },
