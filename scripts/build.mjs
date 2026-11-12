@@ -83,6 +83,15 @@ async function loadPrev(cleanerId) {
 
 const related = (a, b) => a.id === b.id || (a.property === b.property && !a.separate && !b.separate && (a.whole || b.whole));
 
+function billingOut(b) {
+  if (!b) return null;
+  const out = {};
+  if (b.rate != null) out.rate = b.rate;
+  if (b.rates && typeof b.rates === 'object') out.rates = b.rates;
+  return Object.keys(out).length ? out : null;
+}
+
+
 function merge(events) {
   // events: {unit, start, end, kind, source}
   const res = events.filter(e => e.kind === 'reserved');
@@ -177,7 +186,7 @@ async function main() {
       properties: props.map(p => ({ id: p.id, name: p.name, units: cfg.units.filter(u => u.property === p.id && activeUnits.has(u.id)).map(u => ({ id: u.id, name: u.name, short: u.short, color: u.color, whole: !!u.whole, separate: !!u.separate })) })),
       feedCals: feeds.map(f => ({ id: f.id, label: f.label, unit: f.unit, property: unitById[f.unit].property, color: f.color || unitById[f.unit].color, source: f.source, active: !!cache.feeds[f.id], events: cache.feeds[f.id] ? cache.feeds[f.id].events.map(e => ({ start: e.start, end: e.end, kind: e.kind })) : [] })),
       completed: completed.map(c => ({ unit: c.unit, start: c.start, end: c.end, source: c.source })),
-      billing: cl.billing ? { rate: cl.billing.rate } : null,
+      billing: billingOut(cl.billing),
       gh: { owner: cfg.github.owner, repo: cfg.github.repo, stateBranch: cfg.github.stateBranch, privateRepo: cfg.github.privateRepo },
       page: cl.id,
       allUnits: cfg.units.filter(u => cl.properties.includes(u.property)).map(u => ({ id: u.id, name: `${cfg.properties.find(p => p.id === u.property).name} · ${u.short}` })),

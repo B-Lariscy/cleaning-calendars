@@ -67,7 +67,11 @@
     };
     return attempt(0).finally(function () { busy = false; });
   }
-  function defState() { return { version: 1, rate: (D().billing || {}).rate || 70, baseline: { through: A.todayNY(), label: 'Tracking started' }, payments: [], crossoffs: {}, extras: [] }; }
+  function defState() {
+    var b = D().billing || {}, s = { version: 1, baseline: { through: A.todayNY(), label: 'Tracking started' }, payments: [], crossoffs: {}, extras: [] };
+    if (!b.rates && b.rate != null) s.rate = b.rate;
+    return s;
+  }
   function defRefunds() { return { version: 1, periodStart: A.todayNY(), entries: [], periods: [] }; }
   function saveState(mutate, what) {
     toast('Saving…');
@@ -82,9 +86,22 @@
   function cacheState() { try { localStorage.setItem('state:' + D().page, JSON.stringify(state)); } catch (e) {} }
 
   // ---------- bill ----------
+  // Flat rate (Season): billing.rate, optionally snapshotted on state.rate.
+  // Per-unit rates (Madison): billing.rates[unitId]. A unit missing from the map is $0 ("rate not set").
+  function hasRates() { return !!(D().billing && D().billing.rates); }
+  function hasUnitRate(unitId) { return hasRates() && Object.prototype.hasOwnProperty.call(D().billing.rates, unitId); }
+  function rateFor(unitId) {
+    var b = D().billing || {};
+    if (b.rates) return hasUnitRate(unitId) ? Number(b.rates[unitId]) : 0;
+    return Number((state && state.rate) || b.rate || 0);
+  }
+  function rateLabel(unitId) {
+    if (hasRates() && !hasUnitRate(unitId)) return money(0) + ' (rate not set)';
+    return money(rateFor(unitId));
+  }
   function bill() {
     if (!state || !D().billing) return null;
-    var today = A.todayNY(), through = (state.baseline || {}).through || '0000', rate = Number(state.rate || D().billing.rate || 70);
+    var today = A.todayNY(), through = (state.baseline || {}).through || '0000';
     var paidC = {}, paidX = {};
     (state.payments || []).forEach(function (p) { (p.cleanings || []).forEach(function (i) { paidC[i] = p; }); (p.extras || []).forEach(function (i) { paidX[i] = p; }); });
     var map = {};
@@ -95,10 +112,12 @@
     var unpaid = items.filter(function (i) { return !paidC[i.id] && !(state.crossoffs || {})[i.id]; });
     var crossedOpen = items.filter(function (i) { return !paidC[i.id] && (state.crossoffs || {})[i.id]; });
     var extras = (state.extras || []).filter(function (x) { return !paidX[x.id]; });
-    var owed = unpaid.length * rate + extras.reduce(function (t, x) { return t + Number(x.amount || 0); }, 0);
+    var owed = unpaid.reduce(function (t, i) { return t + rateFor(i.s.unit); }, 0) + extras.reduce(function (t, x) { return t + Number(x.amount || 0); }, 0);
     var pays = (state.payments || []).slice().sort(function (a, b) { return (a.date + a.recordedAt).localeCompare(b.date + b.recordedAt); });
     var last = pays[pays.length - 1] || null;
-    return { rate: rate, unpaid: unpaid, crossedOpen: crossedOpen, extras: extras, owed: owed, last: last, pays: pays, through: through };
+    // B.rate is the flat rate (Season) or a default for the "add extra" form (first unit, or 0).
+    var rate = hasRates() ? rateFor(((D().allUnits || [])[0] || {}).id) : Number((state && state.rate) || D().billing.rate || 0);
+    return { rate: rate, flat: !hasRates(), unpaid: unpaid, crossedOpen: crossedOpen, extras: extras, owed: owed, last: last, pays: pays, through: through };
   }
 
   // ---------- public API used by app.js ----------
@@ -114,7 +133,7 @@
       if (!owner) return '';
       if (ui.x === id) {
         h += '<div class="form"><b>Why cross this off?</b><div class="reasons">' + REASONS.map(function (r) { return '<button class="btn small" data-act="cross" data-reason="' + esc(r) + '" data-id="' + esc(id) + '">' + esc(r) + '</button>'; }).join('') + '</div>' +
-          '<label>Note (needed for "Other"; Season can see it)</label><input id="xnote" maxlength="120" placeholder="optional">' +
+          '<label>Note (needed for "Other"; ' + esc(D().cleaner) + ' can see it)</label><input id="xnote" maxlength="120" placeholder="optional">' +
           '<button class="btn small" data-act="xcancel">Cancel</button></div>';
       } else h += '<button class="btn small danger" data-act="xopen" data-id="' + esc(id) + '">✕ Cross off</button>';
       return h;
@@ -151,7 +170,7 @@
     box.hidden = false;
     var name = D().cleaner, n = B.unpaid.length, since = B.last ? B.last.date : B.through;
     var h = '<div class="owed">Owed to ' + esc(name) + ': ' + money(B.owed) + '</div>' +
-      '<div class="owedsub">' + n + ' cleaning' + (n === 1 ? '' : 's') + ' × ' + money(B.rate) + (B.extras.length ? ' + ' + B.extras.length + ' extra' + (B.extras.length === 1 ? '' : 's') : '') + ' since ' + longDate(since) + '</div>' +
+      '<div class="owedsub">' + n + ' cleaning' + (n === 1 ? '' : 's') + (B.flat ? ' × ' + money(B.rate) : '') + (B.extras.length ? ' + ' + B.extras.length + ' extra' + (B.extras.length === 1 ? '' : 's') : '') + ' since ' + longDate(since) + '</div>' +
       '<div class="lastpaid">' + (B.last ? 'Last paid: ' + longDate(B.last.date) + ' — ' + money(B.last.amount) : 'Last paid: none yet (tracking started ' + longDate(B.through) + ')') + '</div>';
     if (owner) h += '<div><button class="btn primary" data-act="form" data-f="paid">💵 Mark paid</button><button class="btn" data-act="form" data-f="extra">＋ Add extra cleaning</button></div>';
     if (ui.form === 'paid') {
@@ -165,12 +184,12 @@
       h += '<div class="form"><b>Add extra cleaning</b><label>Date</label><input type="date" id="xdate" value="' + A.todayNY() + '">' +
         '<label>Unit</label><select id="xunit">' + opts + '</select>' +
         '<label>Amount ($)</label><input type="number" id="xamt" inputmode="decimal" step="0.01" min="0" value="' + B.rate + '">' +
-        '<label>Note (Season can see it)</label><input id="xnote2" maxlength="120" placeholder="e.g. deep clean, missed cleaning from Nov 3">' +
+        '<label>Note (' + esc(name) + ' can see it)</label><input id="xnote2" maxlength="120" placeholder="e.g. deep clean, missed cleaning from Nov 3">' +
         '<button class="btn primary" data-act="extrasave">Add</button><button class="btn" data-act="fclose">Cancel</button></div>';
     }
     // breakdown
     var rows = B.unpaid.map(function (i) {
-      return '<div class="li"><span>' + A.nice(i.s.end) + ' · ' + esc(unitName(i.s.unit)) + (owner ? ' <button class="btn small danger" data-act="xopen" data-id="' + esc(i.id) + '">✕</button>' : '') + '</span><span class="amt">' + money(B.rate) + '</span></div>' +
+      return '<div class="li"><span>' + A.nice(i.s.end) + ' · ' + esc(unitName(i.s.unit)) + (owner ? ' <button class="btn small danger" data-act="xopen" data-id="' + esc(i.id) + '">✕</button>' : '') + '</span><span class="amt">' + rateLabel(i.s.unit) + '</span></div>' +
         (owner && ui.x === i.id ? Pay.cardHtml(i.s) : '');
     }).concat(B.extras.map(function (x) {
       return '<div class="li"><span>' + A.nice(x.date) + ' · ' + esc(unitName(x.unit)) + ' · <i>extra' + (x.note ? ': ' + esc(x.note) : '') + '</i>' + (owner ? ' <button class="btn small danger" data-act="extradel" data-id="' + esc(x.id) + '">Delete</button>' : '') + '</span><span class="amt">' + money(x.amount) + '</span></div>';
@@ -189,6 +208,8 @@
     h += '<details' + (ui.openHist ? ' open' : '') + ' data-d="openHist"><summary>Payment history (' + B.pays.length + ')</summary>' + hist.join('') + '</details>';
     box.innerHTML = h;
     box.querySelectorAll('details').forEach(function (d) { d.addEventListener('toggle', function () { ui[d.getAttribute('data-d')] = d.open; }); });
+    var xunit = box.querySelector('#xunit'), xamt = box.querySelector('#xamt');
+    if (xunit && xamt) xunit.addEventListener('change', function () { xamt.value = rateFor(xunit.value); });
   }
 
   function renderRefunds() {

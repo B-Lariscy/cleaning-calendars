@@ -18,7 +18,8 @@ A brand-new listing: add the unit to `units`, one line to `feeds` in `config/uni
 
 ## Pay tracker, cross-offs, refunds (owner mode)
 - Season's bill = $70 × completed cleanings (checkout day ≤ today ET) since tracking started / not yet paid, minus crossed-off ones, plus extras.
-- Shared state: `state/<page>.json` on the **state** branch of this repo (the build never touches it; pushes there don't trigger deploys). Season can read it.
+- Madison's bill uses per-unit rates (Jackson $90, Limestones/Beacons $100, Keepers $175) for the same checkout-day cleanings, shown with the unit and amount on each line.
+- Shared state: `state/<page>.json` on the **state** branch of this repo (the build never touches it; pushes there don't trigger deploys). The cleaner can read it.
 - Guest refunds: `refunds/<page>.json` in the PRIVATE repo `B-Lariscy/cleaning-calendars-private`, only read with the owner token.
 - Owner mode: tap "Owner" at the bottom of the page and paste a fine-grained GitHub token with Contents: Read and write on both repos. It is stored only in that browser.
 - The build keeps an append-only log of completed cleanings (`completed` in data.json) so the bill survives feeds dropping old stays.

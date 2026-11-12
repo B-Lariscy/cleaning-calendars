@@ -21,7 +21,17 @@
       "properties": [
         "jackson",
         "marblehead"
-      ]
+      ],
+      "billing": {
+        "rates": {
+          "jackson428-1": 90,
+          "jackson428-2": 90,
+          "jackson432": 90,
+          "marble-limestones": 100,
+          "marble-beacons": 100,
+          "marble-keepers": 175
+        }
+      }
     }
   ],
   "properties": [
