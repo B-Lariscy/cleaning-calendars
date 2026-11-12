@@ -99,6 +99,31 @@
     if (hasRates() && !hasUnitRate(unitId)) return money(0) + ' (rate not set)';
     return money(rateFor(unitId));
   }
+  function unitBillLabel(unitId) {
+    var labels = (D().billing || {}).labels;
+    if (labels && labels[unitId]) return labels[unitId];
+    var props = D().properties || [];
+    for (var i = 0; i < props.length; i++) {
+      var list = props[i].units || [];
+      for (var j = 0; j < list.length; j++) if (list[j].id === unitId) return list[j].short || list[j].name;
+    }
+    return unitName(unitId);
+  }
+  function unpaidBreakdown(unpaid) {
+    var map = {}, order = [];
+    unpaid.forEach(function (i) {
+      var label = unitBillLabel(i.s.unit), r = rateFor(i.s.unit), k = label + '|' + r;
+      if (!map[k]) { map[k] = { n: 0, rate: r, label: label }; order.push(k); }
+      map[k].n++;
+    });
+    return order.map(function (k) { return map[k].n + ' × ' + money(map[k].rate) + ' ' + map[k].label; }).join(', ');
+  }
+  function owedSub(B) {
+    var n = B.unpaid.length, extras = B.extras.length ? ' + ' + B.extras.length + ' extra' + (B.extras.length === 1 ? '' : 's') : '', since = ' since ' + longDate(B.last ? B.last.date : B.through);
+    if (B.flat) return n + ' cleaning' + (n === 1 ? '' : 's') + ' × ' + money(B.rate) + extras + since;
+    if (n === 0) return '0 cleanings' + extras + since;
+    return unpaidBreakdown(B.unpaid) + extras + ' · ' + money(B.owed) + ' total' + since;
+  }
   function bill() {
     if (!state || !D().billing) return null;
     var today = A.todayNY(), through = (state.baseline || {}).through || '0000';
@@ -168,9 +193,9 @@
     var B = bill();
     if (!B) { box.hidden = true; return; }
     box.hidden = false;
-    var name = D().cleaner, n = B.unpaid.length, since = B.last ? B.last.date : B.through;
+    var name = D().cleaner, n = B.unpaid.length;
     var h = '<div class="owed">Owed to ' + esc(name) + ': ' + money(B.owed) + '</div>' +
-      '<div class="owedsub">' + n + ' cleaning' + (n === 1 ? '' : 's') + (B.flat ? ' × ' + money(B.rate) : '') + (B.extras.length ? ' + ' + B.extras.length + ' extra' + (B.extras.length === 1 ? '' : 's') : '') + ' since ' + longDate(since) + '</div>' +
+      '<div class="owedsub">' + owedSub(B) + '</div>' +
       '<div class="lastpaid">' + (B.last ? 'Last paid: ' + longDate(B.last.date) + ' — ' + money(B.last.amount) : 'Last paid: none yet (tracking started ' + longDate(B.through) + ')') + '</div>';
     if (owner) h += '<div><button class="btn primary" data-act="form" data-f="paid">💵 Mark paid</button><button class="btn" data-act="form" data-f="extra">＋ Add extra cleaning</button></div>';
     if (ui.form === 'paid') {

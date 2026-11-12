@@ -247,5 +247,5 @@
   setInterval(function () { if (data) { renderHeader(); } }, 60 * 1000);
   var lastDay = todayNY();
   document.addEventListener('visibilitychange', function () { if (!document.hidden) { if (todayNY() !== lastDay) { lastDay = todayNY(); render(); } refresh(); } });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
 })();

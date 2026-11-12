@@ -30,6 +30,14 @@
           "marble-limestones": 100,
           "marble-beacons": 100,
           "marble-keepers": 175
+        },
+        "labels": {
+          "jackson428-1": "Jackson",
+          "jackson428-2": "Jackson",
+          "jackson432": "Jackson",
+          "marble-limestones": "Limestones",
+          "marble-beacons": "Beacons",
+          "marble-keepers": "Keepers"
         }
       }
     }

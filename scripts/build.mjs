@@ -88,6 +88,7 @@ function billingOut(b) {
   const out = {};
   if (b.rate != null) out.rate = b.rate;
   if (b.rates && typeof b.rates === 'object') out.rates = b.rates;
+  if (b.labels && typeof b.labels === 'object') out.labels = b.labels;
   return Object.keys(out).length ? out : null;
 }
 
@@ -195,7 +196,7 @@ async function main() {
     };
     const dir = path.join(OUT, cl.id);
     copyDir(path.join(SITE, 'app'), dir);
-    const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8').replaceAll('__TITLE__', cl.title).replaceAll('__SHORT__', cl.short)
+    const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8').replaceAll('__TITLE__', cl.title).replaceAll('__SHORT__', cl.short).replaceAll('__VERSION__', nowIso)
       .replace('/*__DATA__*/null', JSON.stringify(data).replace(/</g, '\\u003c'));
     fs.writeFileSync(path.join(dir, 'index.html'), html);
     const mf = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.webmanifest'), 'utf8'));
@@ -203,7 +204,7 @@ async function main() {
     fs.writeFileSync(path.join(dir, 'manifest.webmanifest'), JSON.stringify(mf, null, 1));
     fs.writeFileSync(path.join(dir, 'data.json'), JSON.stringify(data));
     fs.writeFileSync(path.join(dir, 'cache.json'), JSON.stringify(cache));
-    fs.writeFileSync(path.join(dir, 'sw.js'), fs.readFileSync(path.join(dir, 'sw.js'), 'utf8').replace('__VERSION__', nowIso));
+    fs.writeFileSync(path.join(dir, 'sw.js'), fs.readFileSync(path.join(dir, 'sw.js'), 'utf8').replaceAll('__VERSION__', nowIso));
   }
   console.log(problems ? `Done with ${problems} feed problem(s).` : 'Done, all feeds OK.');
 }
