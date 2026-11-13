@@ -573,6 +573,29 @@
      "amount": 70.0
     }
    ]
+  },
+  {
+   "id": "9fe4d937038c2e2a67d23df3f929cbcc327a2a4d1a922824341a5c1d8100019c",
+   "date": "2026-11-13",
+   "amount": 350.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "camp-down",
+     "count": 2,
+     "amount": 140.0
+    },
+    {
+     "unit": "hayes",
+     "count": 1,
+     "amount": 70.0
+    }
+   ]
   }
  ]
 }
