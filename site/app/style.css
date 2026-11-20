@@ -110,3 +110,8 @@ summary{font-weight:700;font-size:16px;cursor:pointer;min-height:36px;padding:6p
 .bypay .nomap{color:#6b7280;font-style:italic;padding:8px 0;font-size:15px}
 .bypay .subtot{font-weight:800;border-top:1px solid #d1d5db;margin-top:4px}
 .mismatchline{color:#b45309;font-weight:700}
+
+.card.skipped .date,.card.skipped .where{text-decoration:line-through;color:#9ca3af}
+.card.skipped{opacity:.85;background:#f9fafb}
+.li.skipped{color:#9ca3af}
+.skiplbl{font-weight:700;font-style:italic;color:#6b7280;white-space:nowrap}

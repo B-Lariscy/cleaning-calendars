@@ -74,7 +74,7 @@
     return attempt(0).finally(function () { busy = false; });
   }
   function defState() {
-    var b = D().billing || {}, s = { version: 1, baseline: { through: A.todayNY(), label: 'Tracking started' }, payments: [], crossoffs: {}, extras: [], history: [] };
+    var b = D().billing || {}, s = { version: 1, baseline: { through: A.todayNY(), label: 'Tracking started' }, payments: [], crossoffs: {}, skipped: {}, extras: [], history: [] };
     if (!b.rates && b.rate != null) s.rate = b.rate;
     return s;
   }
@@ -115,6 +115,9 @@
     }
     return unitName(unitId);
   }
+  function skippedMap() { return (state && state.skipped) || {}; }
+  function isSkipped(id) { return !!skippedMap()[id]; }
+
   function unpaidBreakdown(unpaid) {
     var map = {}, order = [];
     unpaid.forEach(function (i) {
@@ -140,22 +143,33 @@
       if (s.end <= through) return; map[s.unit + '|' + s.end] = s;
     });
     var items = Object.keys(map).map(function (id) { return { id: id, s: map[id] }; }).sort(function (a, b) { return a.s.end.localeCompare(b.s.end); });
-    var unpaid = items.filter(function (i) { return !paidC[i.id] && !(state.crossoffs || {})[i.id]; });
-    var crossedOpen = items.filter(function (i) { return !paidC[i.id] && (state.crossoffs || {})[i.id]; });
-    var extras = (state.extras || []).filter(function (x) { return !paidX[x.id]; });
+    var unpaid = items.filter(function (i) { return !paidC[i.id] && !(state.crossoffs || {})[i.id] && !isSkipped(i.id); });
+    var crossedOpen = items.filter(function (i) { return !paidC[i.id] && (state.crossoffs || {})[i.id] && !isSkipped(i.id); });
+    var extras = (state.extras || []).filter(function (x) { return !paidX[x.id] && !isSkipped(x.id); });
+    var skippedOpen = items.filter(function (i) { return !paidC[i.id] && isSkipped(i.id); }).map(function (i) {
+      return { kind: 'stay', id: i.id, date: i.s.end, unit: i.s.unit, amount: rateFor(i.s.unit), note: '' };
+    }).concat((state.extras || []).filter(function (x) { return !paidX[x.id] && isSkipped(x.id); }).map(function (x) {
+      return { kind: 'extra', id: x.id, date: x.date, unit: x.unit, amount: Number(x.amount || 0), note: x.note || '' };
+    })).sort(function (a, b) { return (a.date + a.unit).localeCompare(b.date + b.unit); });
     var owed = unpaid.reduce(function (t, i) { return t + rateFor(i.s.unit); }, 0) + extras.reduce(function (t, x) { return t + Number(x.amount || 0); }, 0);
     var pays = (state.payments || []).slice().sort(function (a, b) { return (a.date + a.recordedAt).localeCompare(b.date + b.recordedAt); });
     var last = pays[pays.length - 1] || null;
     // B.rate is the flat rate (Season) or a default for the "add extra" form (first unit, or 0).
     var rate = hasRates() ? rateFor(((D().allUnits || [])[0] || {}).id) : Number((state && state.rate) || D().billing.rate || 0);
-    return { rate: rate, flat: !hasRates(), unpaid: unpaid, crossedOpen: crossedOpen, extras: extras, owed: owed, last: last, pays: pays, through: through };
+    return { rate: rate, flat: !hasRates(), unpaid: unpaid, crossedOpen: crossedOpen, skippedOpen: skippedOpen, extras: extras, owed: owed, last: last, pays: pays, through: through };
   }
 
   // ---------- public API used by app.js ----------
   var Pay = {
     crossed: function (s) { return state && state.crossoffs ? state.crossoffs[s.unit + '|' + s.end] || null : null; },
+    skipped: function (s) { return state && state.skipped ? state.skipped[s.unit + '|' + s.end] || null : null; },
     cardHtml: function (s) {
-      var id = s.unit + '|' + s.end, X = Pay.crossed(s), h = '';
+      var id = s.unit + '|' + s.end, X = Pay.crossed(s), S = Pay.skipped(s), h = '';
+      if (S) {
+        h += '<div class="xinfo">Skipped — no clean</div>';
+        if (owner) h += '<button class="btn small" data-act="unskip" data-id="' + esc(id) + '">Undo</button>';
+        return h;
+      }
       if (X) {
         h += '<div class="xinfo">❌ Crossed off: ' + esc(X.reason) + (X.note ? ' – ' + esc(X.note) : '') + '</div>';
         if (owner) h += '<button class="btn small" data-act="uncross" data-id="' + esc(id) + '">Undo</button>';
@@ -410,7 +424,8 @@
     if (ui.form === 'paid') {
       h += '<div class="form"><b>Record payment to ' + esc(name) + '</b><label>Payment date</label><input type="date" id="pdate" value="' + A.todayNY() + '">' +
         '<label>Amount ($)</label><input type="number" id="pamt" inputmode="decimal" step="0.01" min="0" value="' + B.owed + '">' +
-        '<div class="note">Covers ' + n + ' cleaning(s)' + (B.extras.length ? ' and ' + B.extras.length + ' extra(s)' : '') + '. The running bill resets to $0.</div>' +
+        '<div class="note">Covers ' + n + ' cleaning(s)' + (B.extras.length ? ' and ' + B.extras.length + ' extra(s)' : '') + '. The running bill resets to $0.' +
+        ((B.skippedOpen || []).length ? ' ' + B.skippedOpen.length + ' skipped cleaning' + (B.skippedOpen.length === 1 ? '' : 's') + ' stay skipped and are not marked paid.' : '') + '</div>' +
         '<button class="btn primary" data-act="paysave">Save payment</button><button class="btn" data-act="fclose">Cancel</button></div>';
     }
     if (ui.form === 'extra') {
@@ -423,15 +438,20 @@
     }
     // breakdown
     var rows = B.unpaid.map(function (i) {
-      return '<div class="li"><span>' + A.nice(i.s.end) + ' · ' + esc(unitName(i.s.unit)) + (owner ? ' <button class="btn small danger" data-act="xopen" data-id="' + esc(i.id) + '">✕</button>' : '') + '</span><span class="amt">' + rateLabel(i.s.unit) + '</span></div>' +
+      var acts = owner ? ' <button class="btn small" data-act="skip" data-id="' + esc(i.id) + '">Skipped / no clean</button> <button class="btn small danger" data-act="xopen" data-id="' + esc(i.id) + '">✕</button>' : '';
+      return '<div class="li"><span>' + A.nice(i.s.end) + ' · ' + esc(unitName(i.s.unit)) + acts + '</span><span class="amt">' + rateLabel(i.s.unit) + '</span></div>' +
         (owner && ui.x === i.id ? Pay.cardHtml(i.s) : '');
     }).concat(B.extras.map(function (x) {
-      return '<div class="li"><span>' + A.nice(x.date) + ' · ' + esc(unitName(x.unit)) + ' · <i>extra' + (x.note ? ': ' + esc(x.note) : '') + '</i>' + (owner ? ' <button class="btn small danger" data-act="extradel" data-id="' + esc(x.id) + '">Delete</button>' : '') + '</span><span class="amt">' + money(x.amount) + '</span></div>';
+      var acts = owner ? ' <button class="btn small" data-act="skip" data-id="' + esc(x.id) + '">Skipped / no clean</button> <button class="btn small danger" data-act="extradel" data-id="' + esc(x.id) + '">Delete</button>' : '';
+      return '<div class="li"><span>' + A.nice(x.date) + ' · ' + esc(unitName(x.unit)) + ' · <i>extra' + (x.note ? ': ' + esc(x.note) : '') + '</i>' + acts + '</span><span class="amt">' + money(x.amount) + '</span></div>';
+    })).concat((B.skippedOpen || []).map(function (i) {
+      var extra = i.kind === 'extra' ? ' · <i>extra' + (i.note ? ': ' + esc(i.note) : '') + '</i>' : '';
+      return '<div class="li skipped"><span class="strike">' + A.nice(i.date) + ' · ' + esc(unitName(i.unit)) + extra + '</span><span class="skiplbl">Skipped' + (owner ? ' <button class="btn small" data-act="unskip" data-id="' + esc(i.id) + '">Undo</button>' : '') + '</span></div>';
     })).concat(B.crossedOpen.map(function (i) {
       var X = state.crossoffs[i.id];
       return '<div class="li"><span class="strike">' + A.nice(i.s.end) + ' · ' + esc(unitName(i.s.unit)) + '</span><span class="note">' + esc(X.reason) + (owner ? ' <button class="btn small" data-act="uncross" data-id="' + esc(i.id) + '">Undo</button>' : '') + '</span></div>';
     }));
-    h += '<details' + (ui.openBreak ? ' open' : '') + ' data-d="openBreak"><summary>What\'s included (' + (n + B.extras.length) + ')</summary>' + (rows.length ? rows.join('') : '<div class="note">Nothing yet. Cleanings are added after their checkout day.</div>') + '</details>';
+    h += '<details' + (ui.openBreak ? ' open' : '') + ' data-d="openBreak"><summary>What\'s included (' + (n + B.extras.length) + ')' + ((B.skippedOpen || []).length ? ' · ' + B.skippedOpen.length + ' skipped' : '') + '</summary>' + (rows.length ? rows.join('') : '<div class="note">Nothing yet. Cleanings are added after their checkout day.</div>') + '</details>';
     // history (ledger: historical 2026 payments + later Mark-paid / synced payments — does not change owed)
     var led = allHistory();
     var total = led.length ? led[led.length - 1].run : 0, nPay = led.length;
@@ -528,6 +548,11 @@
       return;
     }
     if (act === 'uncross') { saveState(function (s) { if (s.crossoffs) delete s.crossoffs[id]; }, 'Undo cross-off ' + id); return; }
+    if (act === 'skip') {
+      saveState(function (s) { s.skipped = s.skipped || {}; s.skipped[id] = { at: A.todayNY() }; }, 'Skip ' + id);
+      return;
+    }
+    if (act === 'unskip') { saveState(function (s) { if (s.skipped) delete s.skipped[id]; }, 'Undo skip ' + id); return; }
     if (act === 'extrasave') {
       var amt = Number(val('xamt')), d = val('xdate');
       if (!d || !(amt >= 0)) { toast('Check the date and amount', true); return; }

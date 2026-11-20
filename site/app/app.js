@@ -73,7 +73,8 @@
         else if (n) nx = nl;
         else nx = '<div class="next">Next guests: <b>none booked yet</b></div>';
         var X = window.Pay ? Pay.crossed(s) : null;
-        html += '<div class="card' + (X ? ' crossed' : '') + '" data-id="' + esc(s.unit + '|' + s.end) + '" style="border-left-color:' + u.color + '">' +
+        var S = window.Pay && Pay.skipped ? Pay.skipped(s) : null;
+        html += '<div class="card' + (X ? ' crossed' : '') + (S ? ' skipped' : '') + '" data-id="' + esc(s.unit + '|' + s.end) + '" style="border-left-color:' + u.color + '">' +
           '<div class="date">' + nice(s.end) + '</div>' +
           '<div class="where">' + esc(u.propName) + ' · ' + esc(u.short) + '</div>' +
           '<div class="meta"><span class="pill">🧹 Clean after checkout</span><span class="pill ' + s.source + '">' + s.source + '</span></div><div class="staytxt">' + stayTxt(s) + '</div>' +
@@ -104,6 +105,8 @@
         var nm = esc(row.name || units[s.unit].short);
         if (s.type === 'stay' && s.end === d) {
           var cx = window.Pay ? Pay.crossed(s) : null;
+          var sk = window.Pay && Pay.skipped ? Pay.skipped(s) : null;
+          if (sk) { out.lines.push('Skipped (no clean): <s>' + nm + '</s>'); return; }
           if (cx) { out.lines.push('❌ <s>Clean: ' + nm + '</s> — crossed off (' + esc(cx.reason) + ')'); return; }
           out.brooms++; out.lines.push('🧹 Checkout / clean: <b>' + nm + '</b> (' + s.source + ') — ' + stayTxt(s));
           if (sameSpace(s, d)) out.turn = true;
