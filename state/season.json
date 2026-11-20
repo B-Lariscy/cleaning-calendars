@@ -5,7 +5,23 @@
   "through": "2026-11-11",
   "label": "Tracking started"
  },
- "payments": [],
+ "payments": [
+  {
+   "id": "fe7b423177489bd2b4da25c76e57e4dad2845e50413f7f72a22961845857904a",
+   "date": "2026-11-20",
+   "amount": 280.0,
+   "cleanings": [
+    "camp-down|2026-11-12",
+    "camp-up|2026-11-15",
+    "camp-down|2026-11-15"
+   ],
+   "extras": [
+    "extra-camp-up-2026-11-10"
+   ],
+   "method": "PayPal",
+   "recordedAt": "2026-11-20T20:05:20.000Z"
+  }
+ ],
  "crossoffs": {},
  "extras": [
   {
@@ -962,6 +978,53 @@
      ]
     }
    ]
+  },
+  {
+   "id": "fe7b423177489bd2b4da25c76e57e4dad2845e50413f7f72a22961845857904a",
+   "date": "2026-11-20",
+   "amount": 280.0,
+   "method": "PayPal",
+   "items": [
+    {
+     "unit": "camp-up",
+     "count": 2,
+     "amount": 140.0,
+     "dates": [
+      "2026-11-10",
+      "2026-11-15"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-11-10",
+       "amount": 70
+      },
+      {
+       "date": "2026-11-15",
+       "amount": 70
+      }
+     ]
+    },
+    {
+     "unit": "camp-down",
+     "count": 2,
+     "amount": 140.0,
+     "dates": [
+      "2026-11-12",
+      "2026-11-15"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-11-12",
+       "amount": 70
+      },
+      {
+       "date": "2026-11-15",
+       "amount": 70
+      }
+     ]
+    }
+   ]
   }
- ]
+ ],
+ "updatedAt": "2026-11-20T20:05:20.352507+00:00"
 }
