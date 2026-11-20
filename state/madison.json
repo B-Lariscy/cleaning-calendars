@@ -18,7 +18,10 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2025-12-04"
+     ]
     }
    ]
   },
@@ -31,7 +34,11 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 180.0
+     "amount": 180.0,
+     "dates": [
+      "2026-01-18",
+      "2026-01-25"
+     ]
     }
    ]
   },
@@ -45,7 +52,10 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2026-02-01"
+     ]
     }
    ]
   },
@@ -58,7 +68,10 @@
     {
      "unit": "unspecified",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-02-15"
+     ]
     }
    ]
   },
@@ -72,7 +85,10 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2026-03-02"
+     ]
     }
    ]
   },
@@ -85,17 +101,33 @@
     {
      "unit": "marble-limestones",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-03-06"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-03-08"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-03-08",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-beacons",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-03-10"
+     ]
     }
    ]
   },
@@ -108,12 +140,26 @@
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-03-15",
+      "2026-03-20"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-03-22"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-03-22",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "other",
@@ -132,7 +178,12 @@
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-03-25",
+      "2026-03-28",
+      "2026-03-29"
+     ]
     },
     {
      "unit": "other",
@@ -151,12 +202,18 @@
     {
      "unit": "marble-beacons",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-04-02"
+     ]
     },
     {
      "unit": "marble-limestones",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-04-05"
+     ]
     }
    ]
   },
@@ -169,22 +226,41 @@
     {
      "unit": "marble-beacons",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-04-08"
+     ]
     },
     {
      "unit": "marble-limestones",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-04-10"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-04-11"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-04-12"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-04-12",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -197,7 +273,10 @@
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-04-18"
+     ]
     }
    ]
   },
@@ -211,12 +290,25 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2026-04-25"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-04-26"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-04-26",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -242,12 +334,25 @@
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-05-06"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-05-11"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-05-11",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -260,17 +365,36 @@
     {
      "unit": "marble-limestones",
      "count": 2,
-     "amount": 200.0
+     "amount": 200.0,
+     "dates": [
+      "2026-05-11",
+      "2026-05-13"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-05-15",
+      "2026-05-16",
+      "2026-05-17"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-05-17"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-05-17",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -283,12 +407,27 @@
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-05-19",
+      "2026-05-22",
+      "2026-05-24"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-05-20"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-05-20",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -301,12 +440,53 @@
     {
      "unit": "jackson428-1",
      "count": 6,
-     "amount": 495.0
+     "amount": 495.0,
+     "dates": [
+      "2026-05-25",
+      "2026-05-27",
+      "2026-05-27",
+      "2026-05-28",
+      "2026-05-30",
+      "2026-05-31"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-05-25",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-05-27",
+       "amount": 90
+      },
+      {
+       "date": "2026-05-27",
+       "amount": 90
+      },
+      {
+       "date": "2026-05-28",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-05-30",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-05-31",
+       "amount": 90
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-05-26",
+      "2026-05-31"
+     ]
     }
    ]
   },
@@ -319,17 +499,40 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 165.0
+     "amount": 165.0,
+     "dates": [
+      "2026-06-02",
+      "2026-06-07"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-06-02",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-06-07",
+       "amount": 90
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-06-02",
+      "2026-06-05",
+      "2026-06-06"
+     ]
     },
     {
      "unit": "marble-beacons",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-06-07"
+     ]
     }
    ]
   },
@@ -342,12 +545,37 @@
     {
      "unit": "jackson428-1",
      "count": 3,
-     "amount": 255.0
+     "amount": 255.0,
+     "dates": [
+      "2026-06-08",
+      "2026-06-11",
+      "2026-06-14"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-06-08",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-06-11",
+       "amount": 90
+      },
+      {
+       "date": "2026-06-14",
+       "amount": 90
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-06-09",
+      "2026-06-12",
+      "2026-06-13"
+     ]
     }
    ]
   },
@@ -360,12 +588,31 @@
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-06-16",
+      "2026-06-19"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 165.0
+     "amount": 165.0,
+     "dates": [
+      "2026-06-21",
+      "2026-06-21"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-06-21",
+       "amount": 90
+      },
+      {
+       "date": "2026-06-21",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -378,12 +625,43 @@
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-06-22",
+      "2026-06-26",
+      "2026-06-28"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 4,
-     "amount": 365.0
+     "amount": 365.0,
+     "dates": [
+      "2026-06-24",
+      "2026-06-26",
+      "2026-06-28",
+      "2026-06-28"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-06-24",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-06-26",
+       "amount": 125
+      },
+      {
+       "date": "2026-06-28",
+       "amount": 90
+      },
+      {
+       "date": "2026-06-28",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -396,12 +674,36 @@
     {
      "unit": "jackson428-1",
      "count": 3,
-     "amount": 255.0
+     "amount": 255.0,
+     "dates": [
+      "2026-06-29",
+      "2026-07-01",
+      "2026-07-05"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-06-29",
+       "amount": 90
+      },
+      {
+       "date": "2026-07-01",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-07-05",
+       "amount": 90
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-06-30",
+      "2026-07-05"
+     ]
     }
    ]
   },
@@ -414,12 +716,44 @@
     {
      "unit": "jackson428-1",
      "count": 4,
-     "amount": 315.0
+     "amount": 315.0,
+     "dates": [
+      "2026-07-06",
+      "2026-07-10",
+      "2026-07-11",
+      "2026-07-12"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-07-06",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-07-10",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-07-11",
+       "amount": 90
+      },
+      {
+       "date": "2026-07-12",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-07-07",
+      "2026-07-10",
+      "2026-07-12"
+     ]
     }
    ]
   },
@@ -432,18 +766,69 @@
     {
      "unit": "jackson428-1",
      "count": 6,
-     "amount": 495.0
+     "amount": 495.0,
+     "dates": [
+      "2026-07-13",
+      "2026-07-14",
+      "2026-07-16",
+      "2026-07-17",
+      "2026-07-19",
+      "2026-07-19"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-07-13",
+       "amount": 90
+      },
+      {
+       "date": "2026-07-14",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-07-16",
+       "amount": 90
+      },
+      {
+       "date": "2026-07-17",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-07-19",
+       "amount": 90
+      },
+      {
+       "date": "2026-07-19",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-07-16",
+      "2026-07-19"
+     ]
     },
     {
      "unit": "other",
      "count": 1,
      "amount": 150.0,
-     "detail": "Oak Harbor"
+     "detail": "Oak Harbor",
+     "dates": [
+      "2026-07-19"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-07-19",
+       "amount": 150,
+       "detail": "Oak Harbor"
+      }
+     ]
     }
    ]
   },
@@ -456,18 +841,48 @@
     {
      "unit": "marble-keepers",
      "count": 3,
-     "amount": 525.0
+     "amount": 525.0,
+     "dates": [
+      "2026-07-20",
+      "2026-07-24",
+      "2026-07-26"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 165.0
+     "amount": 165.0,
+     "dates": [
+      "2026-07-22",
+      "2026-07-24"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-07-22",
+       "amount": 90
+      },
+      {
+       "date": "2026-07-24",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "other",
      "count": 1,
      "amount": 150.0,
-     "detail": "Jefferson"
+     "detail": "Jefferson",
+     "dates": [
+      "2026-07-22"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-07-22",
+       "amount": 150,
+       "detail": "Jefferson"
+      }
+     ]
     }
    ]
   },
@@ -480,12 +895,43 @@
     {
      "unit": "jackson428-1",
      "count": 4,
-     "amount": 315.0
+     "amount": 315.0,
+     "dates": [
+      "2026-07-27",
+      "2026-07-29",
+      "2026-08-02",
+      "2026-08-02"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-07-27",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-07-29",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-08-02",
+       "amount": 90
+      },
+      {
+       "date": "2026-08-02",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-07-31",
+      "2026-08-02"
+     ]
     }
    ]
   },
@@ -498,12 +944,32 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 150.0
+     "amount": 150.0,
+     "dates": [
+      "2026-08-04",
+      "2026-08-09"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-08-04",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-08-09",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-08-05",
+      "2026-08-07"
+     ]
     }
    ]
   },
@@ -516,13 +982,44 @@
     {
      "unit": "jackson428-1",
      "count": 4,
-     "amount": 330.0
+     "amount": 330.0,
+     "dates": [
+      "2026-08-10",
+      "2026-08-14",
+      "2026-08-15",
+      "2026-08-16"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-08-10",
+       "amount": 90
+      },
+      {
+       "date": "2026-08-14",
+       "amount": 75,
+       "detail": "First St"
+      },
+      {
+       "date": "2026-08-15",
+       "amount": 90
+      },
+      {
+       "date": "2026-08-16",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 3,
      "amount": 525.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2026-08-10",
+      "2026-08-12",
+      "2026-08-16"
+     ]
     }
    ]
   },
@@ -535,17 +1032,38 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 165.0
+     "amount": 165.0,
+     "dates": [
+      "2026-08-17",
+      "2026-08-21"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-08-17",
+       "amount": 90
+      },
+      {
+       "date": "2026-08-21",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     },
     {
      "unit": "marble-beacons",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-08-20"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-08-21"
+     ]
     }
    ]
   },
@@ -558,12 +1076,26 @@
     {
      "unit": "marble-keepers",
      "count": 2,
-     "amount": 350.0
+     "amount": 350.0,
+     "dates": [
+      "2026-08-24",
+      "2026-08-30"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 75.0
+     "amount": 75.0,
+     "dates": [
+      "2026-08-24"
+     ],
+     "cleanings": [
+      {
+       "date": "2026-08-24",
+       "amount": 75,
+       "detail": "First St"
+      }
+     ]
     }
    ]
   },
@@ -577,7 +1109,10 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2026-09-03"
+     ]
     }
    ]
   },
@@ -590,12 +1125,19 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 180.0
+     "amount": 180.0,
+     "dates": [
+      "2026-09-07",
+      "2026-09-12"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-09-07"
+     ]
     }
    ]
   },
@@ -608,7 +1150,10 @@
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 90.0
+     "amount": 90.0,
+     "dates": [
+      "2026-09-20"
+     ]
     }
    ]
   },
@@ -621,7 +1166,10 @@
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 90.0
+     "amount": 90.0,
+     "dates": [
+      "2026-09-27"
+     ]
     }
    ]
   },
@@ -635,7 +1183,10 @@
      "unit": "marble-keepers",
      "count": 1,
      "amount": 175.0,
-     "detail": "Marblehead"
+     "detail": "Marblehead",
+     "dates": [
+      "2026-09-30"
+     ]
     }
    ]
   },
@@ -648,12 +1199,19 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 180.0
+     "amount": 180.0,
+     "dates": [
+      "2026-10-07",
+      "2026-10-11"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-10-11"
+     ]
     },
     {
      "unit": "other",
@@ -672,12 +1230,19 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 180.0
+     "amount": 180.0,
+     "dates": [
+      "2026-10-15",
+      "2026-10-18"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-10-18"
+     ]
     },
     {
      "unit": "other",
@@ -696,17 +1261,26 @@
     {
      "unit": "marble-limestones",
      "count": 1,
-     "amount": 100.0
+     "amount": 100.0,
+     "dates": [
+      "2026-10-23"
+     ]
     },
     {
      "unit": "jackson428-1",
      "count": 1,
-     "amount": 90.0
+     "amount": 90.0,
+     "dates": [
+      "2026-10-25"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-10-25"
+     ]
     }
    ]
   },
@@ -719,12 +1293,19 @@
     {
      "unit": "jackson428-1",
      "count": 2,
-     "amount": 180.0
+     "amount": 180.0,
+     "dates": [
+      "2026-10-30",
+      "2026-11-01"
+     ]
     },
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-11-01"
+     ]
     },
     {
      "unit": "other",
@@ -743,7 +1324,10 @@
     {
      "unit": "marble-keepers",
      "count": 1,
-     "amount": 175.0
+     "amount": 175.0,
+     "dates": [
+      "2026-11-08"
+     ]
     }
    ]
   }
