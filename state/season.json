@@ -7,7 +7,15 @@
  },
  "payments": [],
  "crossoffs": {},
- "extras": [],
+ "extras": [
+  {
+   "id": "extra-camp-up-2026-11-10",
+   "date": "2026-11-10",
+   "unit": "camp-up",
+   "amount": 70,
+   "note": "Airbnb checkout; it fell before tracking started Nov 11, so it was missed on the bill"
+  }
+ ],
  "history": [
   {
    "id": "9670081aeb5f0318375cb055d2ffbf6330a34709c8987316bbce320b7df816ed",
