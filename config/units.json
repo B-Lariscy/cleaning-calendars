@@ -11,7 +11,19 @@
         "hayes"
       ],
       "billing": {
-        "rate": 70
+        "rate": 70,
+        "rates": {
+          "camp-up": 70,
+          "camp-down": 70,
+          "camp-whole": 140,
+          "hayes": 70
+        },
+        "labels": {
+          "camp-up": "Camp Up",
+          "camp-down": "Camp Down",
+          "camp-whole": "Grand Gathering",
+          "hayes": "Hayes"
+        }
       }
     },
     {

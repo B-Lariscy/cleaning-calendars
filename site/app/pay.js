@@ -92,8 +92,9 @@
   function cacheState() { try { localStorage.setItem('state:' + D().page, JSON.stringify(state)); } catch (e) {} }
 
   // ---------- bill ----------
-  // Flat rate (Season): billing.rate, optionally snapshotted on state.rate.
-  // Per-unit rates (Madison): billing.rates[unitId]. A unit missing from the map is $0 ("rate not set").
+  // Per-unit rates: billing.rates[unitId]. A unit missing from the map is $0 ("rate not set").
+  // Season: $70 per unit, $140 for the Camp whole house (Grand Gathering = both units). billing.rate (70) is only the default for the extra form.
+  // Flat rate (legacy, no rates map): billing.rate, optionally snapshotted on state.rate.
   function hasRates() { return !!(D().billing && D().billing.rates); }
   function hasUnitRate(unitId) { return hasRates() && Object.prototype.hasOwnProperty.call(D().billing.rates, unitId); }
   function rateFor(unitId) {
@@ -155,7 +156,7 @@
     var pays = (state.payments || []).slice().sort(function (a, b) { return (a.date + a.recordedAt).localeCompare(b.date + b.recordedAt); });
     var last = pays[pays.length - 1] || null;
     // B.rate is the flat rate (Season) or a default for the "add extra" form (first unit, or 0).
-    var rate = hasRates() ? rateFor(((D().allUnits || [])[0] || {}).id) : Number((state && state.rate) || D().billing.rate || 0);
+    var rate = hasRates() ? (D().billing.rate != null ? Number(D().billing.rate) : rateFor(((D().allUnits || [])[0] || {}).id)) : Number((state && state.rate) || D().billing.rate || 0);
     return { rate: rate, flat: !hasRates(), unpaid: unpaid, crossedOpen: crossedOpen, skippedOpen: skippedOpen, extras: extras, owed: owed, last: last, pays: pays, through: through };
   }
 
