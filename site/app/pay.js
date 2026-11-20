@@ -193,7 +193,7 @@
       'camp-up': 'Camp Up', 'camp-down': 'Camp Down', 'camp-whole': 'Whole House (Grand Gathering)', 'hayes': 'Hayes',
       'jackson428-1': '428 Jackson 1st floor', 'jackson428-2': '428 Jackson 2nd floor', 'jackson432': '432 Jackson',
       'marble-keepers': 'Keepers', 'marble-beacons': 'Beacons', 'marble-limestones': 'Limestones',
-      'jackson-unspecified': 'Jackson (unit not specified)', 'unspecified': 'Unspecified', 'other': 'Other / supplies / adjustments'
+      'jackson-unspecified': 'Jackson (unit not specified)', 'unspecified': 'Unspecified', 'other': 'Supplies / other'
     };
     return map[id] || unitBillLabel(id) || unitName(id) || id;
   }
@@ -234,6 +234,15 @@
     sum += undatedCleaningItems(p).reduce(function (t, it) { return t + Number(it.amount || 0); }, 0);
     return Math.round(sum * 100) / 100;
   }
+  function isSmallSuppliesPayment(p) {
+    // No mapped cleanings and under one Season cleaning rate: treat as Supplies / other, not unmapped.
+    return Number(p.amount || 0) < 70 && !listedCleanings(p).length && !undatedCleaningItems(p).length;
+  }
+  function suppliesDetail(it) {
+    var d = (it && it.detail) ? String(it.detail).trim() : '';
+    if (!d || /^no note$/i.test(d)) return '';
+    return d;
+  }
   function paymentDetailsHtml(p) {
     var listed = listedCleanings(p);
     var undated = undatedCleaningItems(p);
@@ -241,31 +250,44 @@
     var sub = cleaningSubtotal(p);
     var paid = Number(p.amount || 0);
     var diff = Math.round((paid - sub) * 100) / 100;
-    var noMapped = !listed.length && !undated.length;
+    var suppliesOnly = isSmallSuppliesPayment(p);
+    var noMapped = !listed.length && !undated.length && !suppliesOnly;
     var open = ui.pays && ui.pays[p.id] ? ' open' : '';
     var sum = '<b>' + longDate(p.date) + '</b> — ' + money(paid) + (p.method ? ' · ' + esc(p.method) : '');
-    if (!noMapped) sum += ' <span class="sub">cleanings ' + money(sub) + '</span>';
-    if (diff && !noMapped) sum += ' <span class="mismatch">doesn\'t match</span>';
-    else if (p.mismatch) sum += ' <span class="mismatch">parsed total differs</span>';
+    if (suppliesOnly) sum += ' <span class="sub">Supplies / other</span>';
+    else if (!noMapped) sum += ' <span class="sub">cleanings ' + money(sub) + '</span>';
+    if (!suppliesOnly && diff && !noMapped) sum += ' <span class="mismatch">doesn\'t match</span>';
+    else if (!suppliesOnly && p.mismatch) sum += ' <span class="mismatch">parsed total differs</span>';
     var inner = '';
-    if (noMapped) {
+    if (suppliesOnly) {
+      if (!extras.length) extras = [{ unit: 'other', amount: paid }];
+      extras.forEach(function (it) {
+        var det = suppliesDetail(it);
+        inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(it.unit === 'unspecified' ? 'other' : (it.unit || 'other'))) + (det ? ' · ' + esc(det) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
+      });
+    } else if (noMapped) {
       inner += '<div class="nomap">No mapped cleanings.</div>';
+      extras.forEach(function (it) {
+        var det = suppliesDetail(it);
+        inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(it.unit)) + (det ? ' · ' + esc(det) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
+      });
     } else {
       listed.forEach(function (r) {
-        inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(r.unit)) + (r.detail ? ' · ' + esc(r.detail) : '') + (r.date ? ' · ' + longDate(r.date) : '') + '</span><span class="amt">' + money(r.amount) + '</span></div>';
+        var det = suppliesDetail(r);
+        inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(r.unit)) + (det ? ' · ' + esc(det) : '') + (r.date ? ' · ' + longDate(r.date) : '') + '</span><span class="amt">' + money(r.amount) + '</span></div>';
       });
       undated.forEach(function (it) {
         var cnt = Number(it.count || 0);
+        var det = suppliesDetail(it);
         var label = it.unit === 'unspecified'
           ? cnt + ' cleaning' + (cnt === 1 ? '' : 's') + ', listing not recorded'
           : esc(histUnitLabel(it.unit)) + ' · ' + cnt + ' cleaning' + (cnt === 1 ? '' : 's') + ', dates not recorded';
-        inner += '<div class="payrow tight"><span>' + label + (it.detail ? ' · ' + esc(it.detail) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
+        inner += '<div class="payrow tight"><span>' + label + (det ? ' · ' + esc(det) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
       });
-    }
-    extras.forEach(function (it) {
-      inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(it.unit)) + (it.detail ? ' · ' + esc(it.detail) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
-    });
-    if (!noMapped) {
+      extras.forEach(function (it) {
+        var det = suppliesDetail(it);
+        inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(it.unit)) + (det ? ' · ' + esc(det) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
+      });
       inner += '<div class="payrow tight subtot"><span>Listed cleanings</span><span class="amt">' + money(sub) + '</span></div>';
       if (diff) inner += '<div class="note mismatchline">Doesn\'t match the ' + money(paid) + ' payment (difference ' + money(diff) + ').</div>';
     }
@@ -437,7 +459,8 @@
       var b = buckets[u] || { count: 0, amount: 0, rows: [] };
       var open = ui.units && ui.units[u] ? ' open' : '';
       var inner = (b.rows || []).slice().reverse().map(function (r) {
-        return '<div class="payrow tight"><span>' + longDate(r.date) + (r.count ? ' · ' + r.count + ' cleaning' + (r.count === 1 ? '' : 's') : '') + (r.detail ? ' · ' + esc(r.detail) : '') + '</span><span class="amt">' + money(r.amount) + '</span></div>';
+        var det = suppliesDetail(r);
+        return '<div class="payrow tight"><span>' + longDate(r.date) + (r.count ? ' · ' + r.count + ' cleaning' + (r.count === 1 ? '' : 's') : '') + (det ? ' · ' + esc(det) : '') + '</span><span class="amt">' + money(r.amount) + '</span></div>';
       }).join('') || '<div class="note">No payments yet for this unit.</div>';
       return '<details' + open + ' data-u="' + esc(u) + '"><summary>' + esc(histUnitLabel(u)) + ' — ' + b.count + ' cleaning' + (b.count === 1 ? '' : 's') + ' · ' + money(b.amount) + '</summary>' + inner + '</details>';
     }).join('');
