@@ -26,10 +26,12 @@ A brand-new listing: add the unit to `units`, one line to `feeds` in `config/uni
 
 ## Payment history (ledger)
 
-The Payment history dropdown on each cleaner site lists every recorded payment (2026 onward), a running dollar total, a payment count, and a per-unit breakdown. **This ledger does not change the current amount owed.** Only `payments` (written by **Mark paid**) clears cleanings on the current bill. Historical 2026 payouts live in `history` and are all dated before tracking started (Season Nov 11, Madison Nov 12).
+The Payment history dropdown on each cleaner site lists every recorded payment (2026 onward), a running dollar total, a payment count, a per-unit breakdown, and a **By payment** breakdown. **This ledger does not change the current amount owed.** Only `payments` (written by **Mark paid**) clears cleanings on the current bill. Historical 2026 payouts live in `history` and are all dated before tracking started (Season Nov 11, Madison Nov 12).
+
+By payment (newest first) shows the date paid, amount, and method on each row. Expanding a payment lists every mapped cleaning: listing, cleaning date, and rate. The subtotal of those listed cleanings is shown next to the payment amount and is flagged when the two do not match — never invent or adjust figures to force a match. Payments with no mapped cleanings say so plainly. When a unit is known but individual dates were not recorded, the row says the dates are missing.
 
 ### Public vs private data
-- Public (`state/<page>.json` → `history[]` on the **state** branch): `id`, `date`, `amount`, `method`, `items`, and optional `mismatch`. No raw notes, transaction IDs, or email IDs.
+- Public (`state/<page>.json` → `history[]` on the **state** branch): `id`, `date`, `amount`, `method`, `items`, and optional `mismatch`. `items[]` may also include `dates` and per-cleaning `cleanings`. No raw notes, transaction IDs, or email IDs.
 - `id` is a SHA-256 hex digest of the payment's transaction ID (dedupe key). For a Mark paid entry, `id` is a random id shared with the `payments[]` row.
 - Private (`payments/<page>.json` in `B-Lariscy/cleaning-calendars-private`): the same fields plus `transactionId`, `messageId`, and the original `note`.
 
@@ -43,8 +45,10 @@ Each item is one unit bucket (or Other / Unspecified):
   "amount": 375,
   "method": "Venmo",
   "items": [
-    { "unit": "jackson-unspecified", "count": 2, "amount": 180 },
-    { "unit": "marble-keepers", "count": 1, "amount": 175 },
+    { "unit": "jackson428-1", "count": 2, "amount": 180, "dates": ["2026-10-15", "2026-10-18"],
+      "cleanings": [{ "date": "2026-10-15", "amount": 90 }, { "date": "2026-10-18", "amount": 90 }] },
+    { "unit": "marble-keepers", "count": 1, "amount": 175, "dates": ["2026-10-18"],
+      "cleanings": [{ "date": "2026-10-18", "amount": 175 }] },
     { "unit": "other", "count": 0, "amount": 20, "detail": "laundry soap + batteries" }
   ]
 }
@@ -52,9 +56,11 @@ Each item is one unit bucket (or Other / Unspecified):
 
 Unit ids: Season `camp-up`, `camp-down`, `camp-whole`, `hayes`. Madison `jackson428-1`, `jackson428-2`, `jackson432`, `marble-keepers`, `marble-beacons`, `marble-limestones`. Plus `jackson-unspecified` (Jackson with no floor), `unspecified` (unit not clear — do not guess), and `other` (supplies, snow removal, adjustments, other properties). `items[].amount` values must sum to `amount`. Optional `mismatch: true` marks a payment whose note could not be fully allocated (the leftover is in `other`).
 
+Optional `items[].dates` (YYYY-MM-DD, checkout/cleaning day) and `items[].cleanings` (`date`, `amount`, optional `detail`) list the individual cleanings behind that unit bucket. Include them whenever the dates are known. If they are not known, omit them — do not guess dates or change `unit` / `count` / `amount` to force a match. Use `cleanings` when amounts differ across dates (for example $75 and $90) or a row needs a short public `detail` such as `First St`. Never copy raw payment notes or transaction IDs into these fields.
+
 ### Gmail-sync / Mark paid
-- **Mark paid** already appends to both `payments` (clears the current bill) and `history` (same `id`, `method: "Marked paid"`). Units come from the cleanings it clears; if there are none, the amount goes to `unspecified`. A leftover vs the listed cleanings goes to `other`.
+- **Mark paid** already appends to both `payments` (clears the current bill) and `history` (same `id`, `method: "Marked paid"`). Units and cleaning dates come from the cleanings it clears (`items[].dates` / `items[].cleanings` use the checkout day); if there are none, the amount goes to `unspecified`. A leftover vs the listed cleanings goes to `other`.
 - A **Gmail-sync** routine that records a payment already sent should:
   1. Hash the transaction ID (`SHA-256` hex) and skip if that `id` already exists in `history`.
-  2. Append the public object (fields above) to `history` in `state/<page>.json` on the **state** branch. Do **not** append to `payments` unless you also intend to clear the current bill (then use the same shape as Mark paid: `cleanings`, `extras`, `recordedAt`, shared `id`).
-  3. Append the full record (including `transactionId`, `messageId`, `note`) to `payments/<page>.json` in the private repo.
+  2. Append the public object (fields above, including `dates` / `cleanings` on each item when the note lists them) to `history` in `state/<page>.json` on the **state** branch. Do **not** append to `payments` unless you also intend to clear the current bill (then use the same shape as Mark paid: `cleanings` as unit|date ids, `extras`, `recordedAt`, shared `id`). If individual cleaning dates cannot be read from the note, omit `dates` / `items[].cleanings` rather than guessing. New `history` rows show up automatically in both the By unit and By payment views.
+  3. Append the full record (including `transactionId`, `messageId`, `note`, and the same public `items`) to `payments/<page>.json` in the private repo.

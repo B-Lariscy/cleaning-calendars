@@ -197,23 +197,109 @@
     };
     return map[id] || unitBillLabel(id) || unitName(id) || id;
   }
+
+  function listedCleanings(p) {
+    var rows = [];
+    (p.items || []).forEach(function (it) {
+      if (it.cleanings && it.cleanings.length) {
+        it.cleanings.forEach(function (c) {
+          rows.push({ unit: it.unit, date: c.date, amount: Number(c.amount || 0), detail: c.detail || it.detail });
+        });
+      } else if (it.dates && it.dates.length) {
+        var n = it.dates.length, total = Number(it.amount || 0);
+        var even = Math.round(total / n * 100) / 100;
+        it.dates.forEach(function (d, i) {
+          var amt = (i === n - 1) ? Math.round((total - even * (n - 1)) * 100) / 100 : even;
+          rows.push({ unit: it.unit, date: d, amount: amt, detail: it.detail });
+        });
+      }
+    });
+    rows.sort(function (a, b) { return ((a.date || '') + a.unit).localeCompare((b.date || '') + b.unit); });
+    return rows;
+  }
+  function undatedCleaningItems(p) {
+    return (p.items || []).filter(function (it) {
+      var cnt = Number(it.count || 0);
+      if (cnt <= 0) return false;
+      if (it.cleanings && it.cleanings.length) return false;
+      if (it.dates && it.dates.length) return false;
+      return true;
+    });
+  }
+  function otherLines(p) {
+    return (p.items || []).filter(function (it) { return Number(it.count || 0) <= 0 && Number(it.amount || 0) !== 0; });
+  }
+  function cleaningSubtotal(p) {
+    var sum = listedCleanings(p).reduce(function (t, r) { return t + Number(r.amount || 0); }, 0);
+    sum += undatedCleaningItems(p).reduce(function (t, it) { return t + Number(it.amount || 0); }, 0);
+    return Math.round(sum * 100) / 100;
+  }
+  function paymentDetailsHtml(p) {
+    var listed = listedCleanings(p);
+    var undated = undatedCleaningItems(p);
+    var extras = otherLines(p);
+    var sub = cleaningSubtotal(p);
+    var paid = Number(p.amount || 0);
+    var diff = Math.round((paid - sub) * 100) / 100;
+    var noMapped = !listed.length && !undated.length;
+    var open = ui.pays && ui.pays[p.id] ? ' open' : '';
+    var sum = '<b>' + longDate(p.date) + '</b> — ' + money(paid) + (p.method ? ' · ' + esc(p.method) : '');
+    if (!noMapped) sum += ' <span class="sub">cleanings ' + money(sub) + '</span>';
+    if (diff && !noMapped) sum += ' <span class="mismatch">doesn\'t match</span>';
+    else if (p.mismatch) sum += ' <span class="mismatch">parsed total differs</span>';
+    var inner = '';
+    if (noMapped) {
+      inner += '<div class="nomap">No mapped cleanings.</div>';
+    } else {
+      listed.forEach(function (r) {
+        inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(r.unit)) + (r.detail ? ' · ' + esc(r.detail) : '') + (r.date ? ' · ' + longDate(r.date) : '') + '</span><span class="amt">' + money(r.amount) + '</span></div>';
+      });
+      undated.forEach(function (it) {
+        var cnt = Number(it.count || 0);
+        var label = it.unit === 'unspecified'
+          ? cnt + ' cleaning' + (cnt === 1 ? '' : 's') + ', listing not recorded'
+          : esc(histUnitLabel(it.unit)) + ' · ' + cnt + ' cleaning' + (cnt === 1 ? '' : 's') + ', dates not recorded';
+        inner += '<div class="payrow tight"><span>' + label + (it.detail ? ' · ' + esc(it.detail) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
+      });
+    }
+    extras.forEach(function (it) {
+      inner += '<div class="payrow tight"><span>' + esc(histUnitLabel(it.unit)) + (it.detail ? ' · ' + esc(it.detail) : '') + '</span><span class="amt">' + money(it.amount) + '</span></div>';
+    });
+    if (!noMapped) {
+      inner += '<div class="payrow tight subtot"><span>Listed cleanings</span><span class="amt">' + money(sub) + '</span></div>';
+      if (diff) inner += '<div class="note mismatchline">Doesn\'t match the ' + money(paid) + ' payment (difference ' + money(diff) + ').</div>';
+    }
+    return '<details' + open + ' data-p="' + esc(p.id || p.date) + '"><summary>' + sum + '</summary>' + inner + '</details>';
+  }
+
   function officialHistUnits() {
     return D().page === 'madison'
       ? ['jackson428-1', 'jackson428-2', 'jackson432', 'marble-keepers', 'marble-beacons', 'marble-limestones']
       : ['camp-up', 'camp-down', 'camp-whole', 'hayes'];
   }
   // Build a history row from a Mark-paid bill payment (uses the cleanings it cleared).
+  function addItemCleaning(bucket, date, amt, detail) {
+    if (!date) return;
+    bucket.dates = bucket.dates || [];
+    bucket.cleanings = bucket.cleanings || [];
+    bucket.dates.push(date);
+    var row = { date: date, amount: amt };
+    if (detail) row.detail = detail;
+    bucket.cleanings.push(row);
+  }
   function itemsFromBillPayment(B, amount) {
     var by = {}, used = 0, items = [];
     (B.unpaid || []).forEach(function (i) {
       var u = i.s.unit, amt = rateFor(u);
       if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
       by[u].count++; by[u].amount += amt; used += amt;
+      addItemCleaning(by[u], i.s && i.s.end, amt);
     });
     (B.extras || []).forEach(function (x) {
       var u = x.unit || 'other', amt = Number(x.amount || 0);
       if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
       by[u].count++; by[u].amount += amt; used += amt;
+      addItemCleaning(by[u], x.date, amt, x.note);
     });
     Object.keys(by).forEach(function (u) { by[u].amount = Math.round(by[u].amount * 100) / 100; items.push(by[u]); });
     var diff = Math.round((Number(amount) - used) * 100) / 100;
@@ -230,15 +316,17 @@
       items = [];
       var by = {};
       (p.cleanings || []).forEach(function (id) {
-        var u = String(id).split('|')[0];
+        var parts = String(id).split('|'), u = parts[0], d = parts[1], amt = rateFor(u);
         if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
-        by[u].count++; by[u].amount += rateFor(u);
+        by[u].count++; by[u].amount += amt;
+        addItemCleaning(by[u], d, amt);
       });
       (p.extras || []).forEach(function (eid) {
         var x = ((state && state.extras) || []).find(function (e) { return e.id === eid; });
         var u = (x && x.unit) || 'other', amt = x ? Number(x.amount || 0) : 0;
         if (!by[u]) by[u] = { unit: u, count: 0, amount: 0 };
         by[u].count++; by[u].amount += amt;
+        if (x) addItemCleaning(by[u], x.date, amt, x.note);
       });
       Object.keys(by).forEach(function (u) { by[u].amount = Math.round(by[u].amount * 100) / 100; items.push(by[u]); });
       var used = items.reduce(function (t, i) { return t + i.amount; }, 0);
@@ -353,11 +441,17 @@
       }).join('') || '<div class="note">No payments yet for this unit.</div>';
       return '<details' + open + ' data-u="' + esc(u) + '"><summary>' + esc(histUnitLabel(u)) + ' — ' + b.count + ' cleaning' + (b.count === 1 ? '' : 's') + ' · ' + money(b.amount) + '</summary>' + inner + '</details>';
     }).join('');
+    var payHtml = newestFirst.map(function (p) {
+      return paymentDetailsHtml(p);
+    }).join('') || '<div class="note">No payments yet.</div>';
     h += '<details' + (ui.openHist ? ' open' : '') + ' data-d="openHist"><summary>Payment history — ' + money(total) + ' · ' + nPay + ' payment' + (nPay === 1 ? '' : 's') + '</summary>' +
-      '<div class="byunit"><div class="ttl">By unit</div>' + unitHtml + '</div>' + histRows.join('') + '</details>';
+      '<div class="byunit"><div class="ttl">By unit</div>' + unitHtml + '</div>' +
+      '<div class="byunit bypay"><div class="ttl">By payment</div>' + payHtml + '</div>' +
+      histRows.join('') + '</details>';
     box.innerHTML = h;
     box.querySelectorAll('details[data-d]').forEach(function (d) { d.addEventListener('toggle', function () { ui[d.getAttribute('data-d')] = d.open; }); });
     box.querySelectorAll('details[data-u]').forEach(function (d) { d.addEventListener('toggle', function () { ui.units = ui.units || {}; ui.units[d.getAttribute('data-u')] = d.open; }); });
+    box.querySelectorAll('details[data-p]').forEach(function (d) { d.addEventListener('toggle', function () { ui.pays = ui.pays || {}; ui.pays[d.getAttribute('data-p')] = d.open; }); });
     var xunit = box.querySelector('#xunit'), xamt = box.querySelector('#xamt');
     if (xunit && xamt) xunit.addEventListener('change', function () { xamt.value = rateFor(xunit.value); });
   }

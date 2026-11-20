@@ -104,3 +104,9 @@ summary{font-weight:700;font-size:16px;cursor:pointer;min-height:36px;padding:6p
   .payrow .run{align-self:flex-end}
   #pay details[data-d="openHist"] > summary{font-size:15px}
 }
+
+.bypay summary{line-height:1.35}
+.bypay .sub{font-weight:600;color:#374151;white-space:nowrap}
+.bypay .nomap{color:#6b7280;font-style:italic;padding:8px 0;font-size:15px}
+.bypay .subtot{font-weight:800;border-top:1px solid #d1d5db;margin-top:4px}
+.mismatchline{color:#b45309;font-weight:700}
