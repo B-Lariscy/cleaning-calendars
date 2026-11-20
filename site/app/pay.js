@@ -258,7 +258,8 @@
     if (!d || /^no note$/i.test(d)) return '';
     return d;
   }
-  function paymentDetailsHtml(p) {
+  function paymentDetailsHtml(p, opts) {
+    opts = opts || {};
     var listed = listedCleanings(p);
     var undated = undatedCleaningItems(p);
     var extras = otherLines(p);
@@ -273,6 +274,8 @@
     else if (!noMapped) sum += ' <span class="sub">cleanings ' + money(sub) + '</span>';
     if (!suppliesOnly && diff && !noMapped) sum += ' <span class="mismatch">doesn\'t match</span>';
     else if (!suppliesOnly && p.mismatch) sum += ' <span class="mismatch">parsed total differs</span>';
+    if (p.run != null) sum += ' <span class="run">running total ' + money(p.run) + '</span>';
+    if (opts.delBtn) sum += ' ' + opts.delBtn;
     var inner = '';
     if (suppliesOnly) {
       if (!extras.length) extras = [{ unit: 'other', amount: paid }];
@@ -458,21 +461,6 @@
     var total = led.length ? led[led.length - 1].run : 0, nPay = led.length;
     var newestFirst = led.slice().reverse();
     var through = B.through;
-    var histRows = [];
-    // Insert the tracking-start marker at its date (newest first).
-    var placedTrack = false;
-    newestFirst.forEach(function (p, i) {
-      if (!placedTrack && p.date <= through) {
-        histRows.push('<div class="payrow track"><span>' + longDate(through) + ' — <i>Tracking started</i> (not a payment)</span></div>');
-        placedTrack = true;
-      }
-      var canDel = owner && (state.payments || []).some(function (x) { return x.id === p.id; }) && i === 0 && p.date > through;
-      histRows.push('<div class="payrow"><span><b>' + longDate(p.date) + '</b> — ' + money(p.amount) + (p.method ? ' · ' + esc(p.method) : '') +
-        (p.mismatch ? ' <span class="mismatch">parsed total differs</span>' : '') +
-        (canDel ? ' <button class="btn small danger" data-act="paydel" data-id="' + esc(p.id) + '">Delete</button>' : '') +
-        '</span><span class="run">' + money(p.run) + '</span></div>');
-    });
-    if (!placedTrack) histRows.push('<div class="payrow track"><span>' + longDate(through) + ' — <i>Tracking started</i> (not a payment)</span></div>');
     var buckets = unitBuckets(led);
     var unitIds = officialHistUnits().slice();
     ['jackson-unspecified', 'unspecified', 'other'].forEach(function (u) { if (buckets[u] && buckets[u].amount) unitIds.push(u); });
@@ -485,13 +473,19 @@
       }).join('') || '<div class="note">No payments yet for this unit.</div>';
       return '<details' + open + ' data-u="' + esc(u) + '"><summary>' + esc(histUnitLabel(u)) + ' — ' + b.count + ' cleaning' + (b.count === 1 ? '' : 's') + ' · ' + money(b.amount) + '</summary>' + inner + '</details>';
     }).join('');
-    var payHtml = newestFirst.map(function (p) {
-      return paymentDetailsHtml(p);
-    }).join('') || '<div class="note">No payments yet.</div>';
+    // One list, newest first: every payment expands to its listings, cleaning dates and rates, with the running total on the row.
+    var trackRow = '<div class="payrow track"><span>' + longDate(through) + ' — <i>Tracking started</i> (not a payment)</span></div>';
+    var placedTrack = false, payRows = [];
+    newestFirst.forEach(function (p, i) {
+      if (!placedTrack && p.date <= through) { payRows.push(trackRow); placedTrack = true; }
+      var canDel = owner && (state.payments || []).some(function (x) { return x.id === p.id; }) && i === 0 && p.date > through;
+      payRows.push(paymentDetailsHtml(p, { delBtn: canDel ? '<button class="btn small danger" data-act="paydel" data-id="' + esc(p.id) + '">Delete</button>' : '' }));
+    });
+    if (!placedTrack) payRows.push(trackRow);
+    var payHtml = newestFirst.length ? payRows.join('') : '<div class="note">No payments yet.</div>' + trackRow;
     h += '<details' + (ui.openHist ? ' open' : '') + ' data-d="openHist"><summary>Payment history — ' + money(total) + ' · ' + nPay + ' payment' + (nPay === 1 ? '' : 's') + '</summary>' +
       '<div class="byunit"><div class="ttl">By unit</div>' + unitHtml + '</div>' +
-      '<div class="byunit bypay"><div class="ttl">By payment</div>' + payHtml + '</div>' +
-      histRows.join('') + '</details>';
+      '<div class="byunit bypay"><div class="ttl">By payment (tap a payment to see what it covered)</div>' + payHtml + '</div>' + '</details>';
     box.innerHTML = h;
     box.querySelectorAll('details[data-d]').forEach(function (d) { d.addEventListener('toggle', function () { ui[d.getAttribute('data-d')] = d.open; }); });
     box.querySelectorAll('details[data-u]').forEach(function (d) { d.addEventListener('toggle', function () { ui.units = ui.units || {}; ui.units[d.getAttribute('data-u')] = d.open; }); });

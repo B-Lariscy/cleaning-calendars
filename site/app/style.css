@@ -115,3 +115,4 @@ summary{font-weight:700;font-size:16px;cursor:pointer;min-height:36px;padding:6p
 .card.skipped{opacity:.85;background:#f9fafb}
 .li.skipped{color:#9ca3af}
 .skiplbl{font-weight:700;font-style:italic;color:#6b7280;white-space:nowrap}
+.bypay summary .run{color:#0f766e;font-weight:700;font-size:.85em;margin-left:6px;white-space:nowrap}
